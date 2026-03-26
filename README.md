@@ -82,7 +82,7 @@ Add to your MCP configuration with the same `uvx rekko-mcp` command and `REKKO_A
 | Strategy | $2.00 | Strategy signals, portfolio-aware sizing, consensus |
 | Deep | $5.00 | Arbitrage scanning, correlation analysis, webhooks |
 
-Full pricing details at [docs.rekko.ai/pricing](https://docs.rekko.ai/pricing).
+Full pricing details at [rekko.ai/docs/pricing](https://rekko.ai/docs/pricing).
 
 ## Chaining with execution skills
 
@@ -95,7 +95,7 @@ Example flow: Rekko analysis → strategy signal → PolyClaw executes the trade
 
 ## Links
 
-- [docs.rekko.ai](https://docs.rekko.ai) — Full documentation
-- [API Reference](https://docs.rekko.ai/api-reference/introduction) — Direct API access
+- [rekko.ai/docs](https://rekko.ai/docs) — Full documentation
+- [API Reference](https://rekko.ai/docs/api-reference/introduction) — Direct API access
 - [RapidAPI](https://rapidapi.com/rekko-ai-rekko-ai-default/api/rekko-ai-prediction-market-intelligence) — Marketplace subscription
 - [Discord](https://discord.gg/qTPEk9aAZg) — Community
