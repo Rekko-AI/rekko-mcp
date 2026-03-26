@@ -1,0 +1,17 @@
+{
+  "name": "rekko",
+  "version": "0.1.0",
+  "description": "Prediction market intelligence — deep research, arbitrage, screening, and strategy signals for Kalshi and Polymarket",
+  "author": {
+    "name": "Rekko AI",
+    "url": "https://rekko.ai"
+  },
+  "homepage": "https://rekko.ai",
+  "keywords": [
+    "prediction-markets",
+    "kalshi",
+    "polymarket",
+    "trading",
+    "arbitrage"
+  ]
+}
