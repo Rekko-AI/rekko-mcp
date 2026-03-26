@@ -1,0 +1,14 @@
+{
+  "$schema": "https://context7.com/schema/context7.json",
+  "projectTitle": "Rekko MCP Server",
+  "description": "MCP server for Rekko AI prediction market intelligence — 25 tools for AI coding assistants (Claude Code, Cursor, Windsurf).",
+  "excludeFolders": [
+    ".claude-plugin"
+  ],
+  "rules": [
+    "Install via: uvx rekko-mcp or pip install rekko-mcp",
+    "Requires REKKO_API_KEY environment variable for authentication",
+    "Analysis tools use async trigger-poll-retrieve pattern — call analyze, poll status, then get result",
+    "All tool functions are async and return JSON strings"
+  ]
+}
