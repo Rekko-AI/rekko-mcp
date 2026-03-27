@@ -22,7 +22,7 @@ jobs:
   smithery:
     needs: pypi
     runs-on: ubuntu-latest
-    if: ${{ vars.SMITHERY_ENABLED != 'false' }}
+    if: ${{ !cancelled() && vars.SMITHERY_ENABLED != 'false' }}
     steps:
       - uses: actions/setup-node@v4
         with:
