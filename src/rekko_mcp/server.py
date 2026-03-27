@@ -11,9 +11,11 @@ from __future__ import annotations
 
 import json
 import os
+from typing import Annotated
 
 import httpx
 from fastmcp import FastMCP
+from pydantic import Field
 
 REKKO_API_BASE = "https://api.rekko.ai"
 
@@ -70,56 +72,58 @@ async def _request(method: str, path: str, **kwargs) -> str:
 # ---------------------------------------------------------------------------
 
 
-@mcp.tool(name="markets.list")
-async def list_markets(source: str = "", limit: int = 30) -> str:
-    """List current prediction markets from Kalshi and Polymarket.
-
-    Args:
-        source: Filter by platform: "kalshi", "polymarket", or "" for all.
-        limit: Maximum number of markets to return (1-100).
-    """
+@mcp.tool(
+    name="markets.list",
+    annotations={"readOnlyHint": True, "openWorldHint": True},
+)
+async def list_markets(
+    source: Annotated[str, Field(description='Filter by platform: "kalshi", "polymarket", or "" for all.')] = "",
+    limit: Annotated[int, Field(description="Maximum number of markets to return (1-100).")] = 30,
+) -> str:
+    """List current prediction markets from Kalshi and Polymarket."""
     params: dict = {"limit": limit}
     if source:
         params["source"] = source
     return await _request("GET", "/v1/markets", params=params)
 
 
-@mcp.tool(name="markets.get")
-async def get_market(market_id: str, source: str = "") -> str:
-    """Get detailed information about a specific prediction market.
-
-    Args:
-        market_id: Platform-specific market identifier (e.g. Kalshi ticker or Polymarket slug).
-        source: Platform hint: "kalshi", "polymarket", or "" to search both.
-    """
+@mcp.tool(
+    name="markets.get",
+    annotations={"readOnlyHint": True, "openWorldHint": True},
+)
+async def get_market(
+    market_id: Annotated[str, Field(description="Platform-specific market identifier (e.g. Kalshi ticker or Polymarket slug).")],
+    source: Annotated[str, Field(description='Platform hint: "kalshi", "polymarket", or "" to search both.')] = "",
+) -> str:
+    """Get detailed information about a specific prediction market."""
     if source:
         return await _request("GET", f"/v1/markets/{source}/{market_id}")
     return await _request("GET", "/v1/markets", params={"query": market_id, "limit": 1})
 
 
-@mcp.tool(name="markets.search")
-async def search_markets(query: str, limit: int = 20) -> str:
-    """Search prediction markets by keyword in market title.
-
-    Args:
-        query: Search query string to match against market titles.
-        limit: Maximum number of results to return.
-    """
+@mcp.tool(
+    name="markets.search",
+    annotations={"readOnlyHint": True, "openWorldHint": True},
+)
+async def search_markets(
+    query: Annotated[str, Field(description="Search query string to match against market titles.")],
+    limit: Annotated[int, Field(description="Maximum number of results to return.")] = 20,
+) -> str:
+    """Search prediction markets by keyword in market title."""
     return await _request("GET", "/v1/markets", params={"query": query, "limit": limit})
 
 
-@mcp.tool(name="markets.history")
+@mcp.tool(
+    name="markets.history",
+    annotations={"readOnlyHint": True, "openWorldHint": True},
+)
 async def get_market_history(
-    platform: str, market_id: str, period: str = "7d", max_points: int = 48
+    platform: Annotated[str, Field(description='Platform: "kalshi" or "polymarket".')],
+    market_id: Annotated[str, Field(description="Platform-specific market identifier.")],
+    period: Annotated[str, Field(description='History window: "48h", "7d", or "30d".')] = "7d",
+    max_points: Annotated[int, Field(description="Maximum data points to return.")] = 48,
 ) -> str:
-    """Get price history for a prediction market over a configurable period.
-
-    Args:
-        platform: Platform: "kalshi" or "polymarket".
-        market_id: Platform-specific market identifier.
-        period: History window: "48h", "7d", or "30d".
-        max_points: Maximum data points to return.
-    """
+    """Get price history for a prediction market over a configurable period."""
     return await _request(
         "GET",
         f"/v1/markets/{platform}/{market_id}/history",
@@ -127,46 +131,44 @@ async def get_market_history(
     )
 
 
-@mcp.tool(name="markets.resolution")
-async def get_resolution(platform: str, market_id: str) -> str:
-    """Get resolution intelligence for a market — time urgency, mechanism, theta estimate.
-
-    Args:
-        platform: Platform: "kalshi" or "polymarket".
-        market_id: Platform-specific market identifier.
-    """
+@mcp.tool(
+    name="markets.resolution",
+    annotations={"readOnlyHint": True, "openWorldHint": True},
+)
+async def get_resolution(
+    platform: Annotated[str, Field(description='Platform: "kalshi" or "polymarket".')],
+    market_id: Annotated[str, Field(description="Platform-specific market identifier.")],
+) -> str:
+    """Get resolution intelligence for a market — time urgency, mechanism, theta estimate."""
     return await _request("GET", f"/v1/markets/{platform}/{market_id}/resolution")
 
 
-@mcp.tool(name="markets.execution")
-async def get_execution_guidance(platform: str, market_id: str) -> str:
-    """Get execution guidance for a market — spread analysis, slippage estimate, order recommendation.
-
-    Args:
-        platform: Platform: "kalshi" or "polymarket".
-        market_id: Platform-specific market identifier.
-    """
+@mcp.tool(
+    name="markets.execution",
+    annotations={"readOnlyHint": True, "openWorldHint": True},
+)
+async def get_execution_guidance(
+    platform: Annotated[str, Field(description='Platform: "kalshi" or "polymarket".')],
+    market_id: Annotated[str, Field(description="Platform-specific market identifier.")],
+) -> str:
+    """Get execution guidance for a market — spread analysis, slippage estimate, order recommendation."""
     return await _request("GET", f"/v1/markets/{platform}/{market_id}/execution")
 
 
-@mcp.tool(name="markets.screen")
+@mcp.tool(
+    name="markets.screen",
+    annotations={"readOnlyHint": True, "openWorldHint": True},
+)
 async def screen_markets(
-    market_ids: list[str] | None = None,
-    platform: str = "",
-    min_volume_24h: float = 0.0,
-    min_score: float = 0.0,
-    limit: int = 50,
+    market_ids: Annotated[list[str] | None, Field(description="Optional list of specific market IDs to screen.")] = None,
+    platform: Annotated[str, Field(description='Filter by platform: "kalshi", "polymarket", or "" for all.')] = "",
+    min_volume_24h: Annotated[float, Field(description="Minimum 24h volume filter.")] = 0.0,
+    min_score: Annotated[float, Field(description="Minimum composite score filter.")] = 0.0,
+    limit: Annotated[int, Field(description="Maximum number of results to return.")] = 50,
 ) -> str:
     """Batch screen markets by score, volume, or specific IDs.
 
     Returns scored markets with an action recommendation: "analyze", "watch", or "skip".
-
-    Args:
-        market_ids: Optional list of specific market IDs to screen.
-        platform: Filter by platform: "kalshi", "polymarket", or "" for all.
-        min_volume_24h: Minimum 24h volume filter.
-        min_score: Minimum composite score filter.
-        limit: Maximum number of results to return.
     """
     body: dict = {"limit": limit}
     if market_ids:
@@ -180,13 +182,14 @@ async def screen_markets(
     return await _request("POST", "/v1/screen", json=body)
 
 
-@mcp.tool(name="markets.scrape")
-async def run_scraper(source: str) -> str:
-    """Fetch fresh market data from a platform scraper.
-
-    Args:
-        source: Which scraper to run: "kalshi", "polymarket", or "arbitrage".
-    """
+@mcp.tool(
+    name="markets.scrape",
+    annotations={"readOnlyHint": False, "openWorldHint": True},
+)
+async def run_scraper(
+    source: Annotated[str, Field(description='Which scraper to run: "kalshi", "polymarket", or "arbitrage".')],
+) -> str:
+    """Fetch fresh market data from a platform scraper."""
     return await _request("POST", "/v1/scrapers/run", json={"source": source})
 
 
@@ -195,16 +198,18 @@ async def run_scraper(source: str) -> str:
 # ---------------------------------------------------------------------------
 
 
-@mcp.tool(name="analysis.start")
-async def analyze_market(bet_text: str, platform: str = "") -> str:
+@mcp.tool(
+    name="analysis.start",
+    annotations={"readOnlyHint": True, "openWorldHint": True},
+)
+async def analyze_market(
+    bet_text: Annotated[str, Field(description="Description of the bet or market question to analyze.")],
+    platform: Annotated[str, Field(description='Source platform hint: "kalshi", "polymarket", or "".')] = "",
+) -> str:
     """Start a deep research analysis pipeline for a prediction market bet.
 
     Returns immediately with an analysis_id. Poll with analysis.status
     every 5 seconds until complete, then retrieve results with analysis.get.
-
-    Args:
-        bet_text: Description of the bet or market question to analyze.
-        platform: Source platform hint: "kalshi", "polymarket", or "".
     """
     body: dict = {"bet_text": bet_text}
     if platform:
@@ -212,36 +217,40 @@ async def analyze_market(bet_text: str, platform: str = "") -> str:
     return await _request("POST", "/v1/insights", json=body)
 
 
-@mcp.tool(name="analysis.status")
-async def check_analysis_status(analysis_id: str) -> str:
-    """Check the current status of a running or completed analysis.
-
-    Args:
-        analysis_id: Analysis identifier returned by analysis.start.
-    """
+@mcp.tool(
+    name="analysis.status",
+    annotations={"readOnlyHint": True, "openWorldHint": True},
+)
+async def check_analysis_status(
+    analysis_id: Annotated[str, Field(description="Analysis identifier returned by analysis.start.")],
+) -> str:
+    """Check the current status of a running or completed analysis."""
     return await _request("GET", f"/v1/insights/{analysis_id}/status")
 
 
-@mcp.tool(name="analysis.get")
-async def get_analysis(analysis_id: str) -> str:
+@mcp.tool(
+    name="analysis.get",
+    annotations={"readOnlyHint": True, "openWorldHint": True},
+)
+async def get_analysis(
+    analysis_id: Annotated[str, Field(description="Analysis identifier for a completed analysis.")],
+) -> str:
     """Retrieve the full structured analysis result for a completed analysis.
 
     Includes probability estimate, edge assessment, scenarios, key factors,
     risks, and trading recommendation.
-
-    Args:
-        analysis_id: Analysis identifier for a completed analysis.
     """
     return await _request("GET", f"/v1/insights/{analysis_id}")
 
 
-@mcp.tool(name="analysis.list")
-async def list_analyses(limit: int = 20) -> str:
-    """List recent analyses with summary information.
-
-    Args:
-        limit: Maximum number of analyses to return.
-    """
+@mcp.tool(
+    name="analysis.list",
+    annotations={"readOnlyHint": True, "openWorldHint": True},
+)
+async def list_analyses(
+    limit: Annotated[int, Field(description="Maximum number of analyses to return.")] = 20,
+) -> str:
+    """List recent analyses with summary information."""
     return await _request("GET", "/v1/analyses", params={"limit": limit})
 
 
@@ -250,16 +259,18 @@ async def list_analyses(limit: int = 20) -> str:
 # ---------------------------------------------------------------------------
 
 
-@mcp.tool(name="strategy.signal")
-async def get_strategy(market_query: str, risk_limit: float = 0.0) -> str:
+@mcp.tool(
+    name="strategy.signal",
+    annotations={"readOnlyHint": True, "openWorldHint": True},
+)
+async def get_strategy(
+    market_query: Annotated[str, Field(description="Description of the bet or market question to analyze.")],
+    risk_limit: Annotated[float, Field(description="Reserved for position sizing constraints.")] = 0.0,
+) -> str:
     """Run a full analysis and return a strategy signal with causal decomposition.
 
     This is a blocking call that takes 30-90 seconds. For async control, use
     analysis.start + analysis.status + analysis.get instead.
-
-    Args:
-        market_query: Description of the bet or market question to analyze.
-        risk_limit: Reserved for position sizing constraints.
     """
     body: dict = {"market_query": market_query}
     if risk_limit > 0:
@@ -267,21 +278,17 @@ async def get_strategy(market_query: str, risk_limit: float = 0.0) -> str:
     return await _request("POST", "/v1/signals", json=body)
 
 
-@mcp.tool(name="strategy.portfolio")
+@mcp.tool(
+    name="strategy.portfolio",
+    annotations={"readOnlyHint": True, "openWorldHint": True},
+)
 async def get_portfolio_strategy(
-    market_query: str,
-    portfolio: list[dict] | None = None,
-    bankroll_usd: float = 10000.0,
-    max_position_pct: float = 0.05,
+    market_query: Annotated[str, Field(description="Description of the bet or market question to analyze.")],
+    portfolio: Annotated[list[dict] | None, Field(description="Optional list of current positions (dicts with ticker, side, size_usd).")] = None,
+    bankroll_usd: Annotated[float, Field(description="Total bankroll in USD for position sizing.")] = 10000.0,
+    max_position_pct: Annotated[float, Field(description="Maximum fraction of bankroll per position.")] = 0.05,
 ) -> str:
-    """Get a portfolio-aware strategy signal with position context and correlation analysis.
-
-    Args:
-        market_query: Description of the bet or market question to analyze.
-        portfolio: Optional list of current positions (dicts with ticker, side, size_usd).
-        bankroll_usd: Total bankroll in USD for position sizing.
-        max_position_pct: Maximum fraction of bankroll per position.
-    """
+    """Get a portfolio-aware strategy signal with position context and correlation analysis."""
     body: dict = {
         "market_query": market_query,
         "bankroll_usd": bankroll_usd,
@@ -292,34 +299,32 @@ async def get_portfolio_strategy(
     return await _request("POST", "/v1/signals/portfolio", json=body)
 
 
-@mcp.tool(name="strategy.calibration")
+@mcp.tool(
+    name="strategy.calibration",
+    annotations={"readOnlyHint": True, "openWorldHint": True},
+)
 async def get_calibration(
-    category: str = "", period: str = "all", mode: str = "shadow"
+    category: Annotated[str, Field(description='Filter by category (e.g. "crypto", "politics") or "" for all.')] = "",
+    period: Annotated[str, Field(description='Time period: "7d", "30d", "90d", or "all".')] = "all",
+    mode: Annotated[str, Field(description='Trading mode: "shadow" or "live".')] = "shadow",
 ) -> str:
-    """Get signal accuracy and calibration metrics — Brier score, hit rates, total signals.
-
-    Args:
-        category: Filter by category (e.g. "crypto", "politics") or "" for all.
-        period: Time period: "7d", "30d", "90d", or "all".
-        mode: Trading mode: "shadow" or "live".
-    """
+    """Get signal accuracy and calibration metrics — Brier score, hit rates, total signals."""
     params: dict = {"period": period, "mode": mode}
     if category:
         params["category"] = category
     return await _request("GET", "/v1/calibration", params=params)
 
 
-@mcp.tool(name="strategy.consensus")
+@mcp.tool(
+    name="strategy.consensus",
+    annotations={"readOnlyHint": True, "openWorldHint": True},
+)
 async def get_consensus(
-    market_id: str, platform: str = "kalshi", period: str = "7d"
+    market_id: Annotated[str, Field(description="Platform-specific market identifier.")],
+    platform: Annotated[str, Field(description='Platform: "kalshi" or "polymarket".')] = "kalshi",
+    period: Annotated[str, Field(description='Lookback period: "48h", "7d", or "30d".')] = "7d",
 ) -> str:
-    """Get consensus probability from aggregated agent trades.
-
-    Args:
-        market_id: Platform-specific market identifier.
-        platform: Platform: "kalshi" or "polymarket".
-        period: Lookback period: "48h", "7d", or "30d".
-    """
+    """Get consensus probability from aggregated agent trades."""
     return await _request(
         "GET",
         f"/v1/markets/{platform}/{market_id}/consensus",
@@ -332,37 +337,38 @@ async def get_consensus(
 # ---------------------------------------------------------------------------
 
 
-@mcp.tool(name="arbitrage.get")
-async def get_arbitrage(min_spread: float = 0.02) -> str:
-    """Get cross-platform arbitrage opportunities between Kalshi and Polymarket (cached).
-
-    Args:
-        min_spread: Minimum spread threshold (0.0-1.0). Default 0.02 (2%).
-    """
+@mcp.tool(
+    name="arbitrage.get",
+    annotations={"readOnlyHint": True, "openWorldHint": True},
+)
+async def get_arbitrage(
+    min_spread: Annotated[float, Field(description="Minimum spread threshold (0.0-1.0). Default 0.02 (2%).")] = 0.02,
+) -> str:
+    """Get cross-platform arbitrage opportunities between Kalshi and Polymarket (cached)."""
     return await _request("GET", "/v1/arbitrage", params={"min_spread": min_spread})
 
 
-@mcp.tool(name="arbitrage.live")
-async def get_arbitrage_live(min_spread: float = 0.02) -> str:
-    """Run a fresh cross-platform arbitrage scan (may take 10-30 seconds).
-
-    Args:
-        min_spread: Minimum spread threshold (0.0-1.0). Default 0.02 (2%).
-    """
+@mcp.tool(
+    name="arbitrage.live",
+    annotations={"readOnlyHint": True, "openWorldHint": True},
+)
+async def get_arbitrage_live(
+    min_spread: Annotated[float, Field(description="Minimum spread threshold (0.0-1.0). Default 0.02 (2%).")] = 0.02,
+) -> str:
+    """Run a fresh cross-platform arbitrage scan (may take 10-30 seconds)."""
     return await _request("GET", "/v1/arbitrage/live", params={"min_spread": min_spread})
 
 
-@mcp.tool(name="arbitrage.correlation")
+@mcp.tool(
+    name="arbitrage.correlation",
+    annotations={"readOnlyHint": True, "openWorldHint": True},
+)
 async def get_correlation(
-    market_ids: list[str], platform: str = "kalshi", period: str = "7d"
+    market_ids: Annotated[list[str], Field(description="List of market IDs to correlate (minimum 2).")],
+    platform: Annotated[str, Field(description='Platform: "kalshi" or "polymarket".')] = "kalshi",
+    period: Annotated[str, Field(description='Lookback period: "48h", "7d", or "30d".')] = "7d",
 ) -> str:
-    """Compute cross-market correlation graph for portfolio diversification analysis.
-
-    Args:
-        market_ids: List of market IDs to correlate (minimum 2).
-        platform: Platform: "kalshi" or "polymarket".
-        period: Lookback period: "48h", "7d", or "30d".
-    """
+    """Compute cross-market correlation graph for portfolio diversification analysis."""
     return await _request(
         "POST",
         "/v1/correlation",
@@ -375,15 +381,16 @@ async def get_correlation(
 # ---------------------------------------------------------------------------
 
 
-@mcp.tool(name="trading.shadow")
-async def place_shadow_trade(ticker: str, side: str, size_usd: float) -> str:
-    """Place a paper (shadow) trade on a prediction market for tracking purposes.
-
-    Args:
-        ticker: Market ticker symbol (e.g. "KXBTC-100K").
-        side: Trade direction: "yes" or "no".
-        size_usd: Trade size in USD.
-    """
+@mcp.tool(
+    name="trading.shadow",
+    annotations={"readOnlyHint": False, "openWorldHint": True},
+)
+async def place_shadow_trade(
+    ticker: Annotated[str, Field(description='Market ticker symbol (e.g. "KXBTC-100K").')],
+    side: Annotated[str, Field(description='Trade direction: "yes" or "no".')],
+    size_usd: Annotated[float, Field(description="Trade size in USD.")],
+) -> str:
+    """Place a paper (shadow) trade on a prediction market for tracking purposes."""
     return await _request(
         "POST",
         "/v1/trades/shadow",
@@ -391,19 +398,18 @@ async def place_shadow_trade(ticker: str, side: str, size_usd: float) -> str:
     )
 
 
-@mcp.tool(name="trading.report")
+@mcp.tool(
+    name="trading.report",
+    annotations={"readOnlyHint": False, "openWorldHint": True},
+)
 async def report_trade(
-    market_id: str, platform: str, side: str, size_usd: float, price: float
+    market_id: Annotated[str, Field(description="Platform-specific market identifier.")],
+    platform: Annotated[str, Field(description='Platform: "kalshi" or "polymarket".')],
+    side: Annotated[str, Field(description='Trade direction: "yes" or "no".')],
+    size_usd: Annotated[float, Field(description="Trade size in USD.")],
+    price: Annotated[float, Field(description="Execution price (0.0-1.0).")],
 ) -> str:
-    """Report a trade for consensus probability aggregation.
-
-    Args:
-        market_id: Platform-specific market identifier.
-        platform: Platform: "kalshi" or "polymarket".
-        side: Trade direction: "yes" or "no".
-        size_usd: Trade size in USD.
-        price: Execution price (0.0-1.0).
-    """
+    """Report a trade for consensus probability aggregation."""
     return await _request(
         "POST",
         "/v1/trades/report",
@@ -417,27 +423,32 @@ async def report_trade(
     )
 
 
-@mcp.tool(name="trading.portfolio")
-async def get_portfolio(mode: str = "shadow") -> str:
-    """Get current portfolio positions and performance summary.
-
-    Args:
-        mode: Portfolio mode: "shadow" for paper trades, "live" for real trades.
-    """
+@mcp.tool(
+    name="trading.portfolio",
+    annotations={"readOnlyHint": True, "openWorldHint": True},
+)
+async def get_portfolio(
+    mode: Annotated[str, Field(description='Portfolio mode: "shadow" for paper trades, "live" for real trades.')] = "shadow",
+) -> str:
+    """Get current portfolio positions and performance summary."""
     return await _request("GET", "/v1/portfolio", params={"mode": mode})
 
 
-@mcp.tool(name="trading.performance")
-async def get_performance(mode: str = "shadow") -> str:
-    """Get aggregate trading performance statistics.
-
-    Args:
-        mode: Portfolio mode: "shadow" for paper trades, "live" for real trades.
-    """
+@mcp.tool(
+    name="trading.performance",
+    annotations={"readOnlyHint": True, "openWorldHint": True},
+)
+async def get_performance(
+    mode: Annotated[str, Field(description='Portfolio mode: "shadow" for paper trades, "live" for real trades.')] = "shadow",
+) -> str:
+    """Get aggregate trading performance statistics."""
     return await _request("GET", "/v1/performance", params={"mode": mode})
 
 
-@mcp.tool(name="trading.resolve")
+@mcp.tool(
+    name="trading.resolve",
+    annotations={"readOnlyHint": False, "openWorldHint": True},
+)
 async def check_resolutions() -> str:
     """Check all open trades for market resolution and update P&L."""
     return await _request("POST", "/v1/trades/resolve")
@@ -448,32 +459,37 @@ async def check_resolutions() -> str:
 # ---------------------------------------------------------------------------
 
 
-@mcp.tool(name="webhooks.create")
-async def create_webhook(url: str, events: list[str], secret: str = "") -> str:
-    """Register a webhook for real-time event notifications.
-
-    Args:
-        url: HTTPS URL to receive POST notifications.
-        events: Event types: "whale_alert", "price_shift", "analysis_complete".
-        secret: Optional shared secret for HMAC signature verification.
-    """
+@mcp.tool(
+    name="webhooks.create",
+    annotations={"readOnlyHint": False, "openWorldHint": True},
+)
+async def create_webhook(
+    url: Annotated[str, Field(description="HTTPS URL to receive POST notifications.")],
+    events: Annotated[list[str], Field(description='Event types: "whale_alert", "price_shift", "analysis_complete".')],
+    secret: Annotated[str, Field(description="Optional shared secret for HMAC signature verification.")] = "",
+) -> str:
+    """Register a webhook for real-time event notifications."""
     body: dict = {"url": url, "events": events}
     if secret:
         body["secret"] = secret
     return await _request("POST", "/v1/webhooks", json=body)
 
 
-@mcp.tool(name="webhooks.list")
+@mcp.tool(
+    name="webhooks.list",
+    annotations={"readOnlyHint": True, "openWorldHint": True},
+)
 async def list_webhooks() -> str:
     """List registered webhooks."""
     return await _request("GET", "/v1/webhooks")
 
 
-@mcp.tool(name="webhooks.delete")
-async def delete_webhook(webhook_id: str) -> str:
-    """Remove a registered webhook.
-
-    Args:
-        webhook_id: Webhook identifier returned by webhooks.create.
-    """
+@mcp.tool(
+    name="webhooks.delete",
+    annotations={"readOnlyHint": False, "openWorldHint": True},
+)
+async def delete_webhook(
+    webhook_id: Annotated[str, Field(description="Webhook identifier returned by webhooks.create.")],
+) -> str:
+    """Remove a registered webhook."""
     return await _request("DELETE", f"/v1/webhooks/{webhook_id}")

@@ -1,6 +1,6 @@
 """Rekko AI MCP server — prediction market intelligence via api.rekko.ai."""
 
-__version__ = "0.4.0"
+__version__ = "0.4.1"
 
 
 def main() -> None:
