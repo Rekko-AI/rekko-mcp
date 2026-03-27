@@ -68,6 +68,23 @@ async def _request(method: str, path: str, **kwargs) -> str:
 
 
 # ---------------------------------------------------------------------------
+# Prompts
+# ---------------------------------------------------------------------------
+
+
+@mcp.prompt()
+def analyze_bet(market_question: str) -> str:
+    """Analyze a prediction market bet end-to-end: research, strategy signal, and trade recommendation."""
+    return (
+        f"Analyze this prediction market bet: {market_question}\n\n"
+        "1. Use markets.search to find the market\n"
+        "2. Use markets.history and markets.resolution for context\n"
+        "3. Use strategy.signal for a full analysis with position sizing\n"
+        "4. Summarize: probability, edge, recommended action, and size"
+    )
+
+
+# ---------------------------------------------------------------------------
 # markets.*  — browse, search, and inspect prediction markets
 # ---------------------------------------------------------------------------
 
@@ -449,9 +466,11 @@ async def get_performance(
     name="trading.resolve",
     annotations={"readOnlyHint": False, "openWorldHint": True},
 )
-async def check_resolutions() -> str:
+async def check_resolutions(
+    mode: Annotated[str, Field(description='Portfolio mode: "shadow" for paper trades, "live" for real trades.')] = "shadow",
+) -> str:
     """Check all open trades for market resolution and update P&L."""
-    return await _request("POST", "/v1/trades/resolve")
+    return await _request("POST", "/v1/trades/resolve", params={"mode": mode})
 
 
 # ---------------------------------------------------------------------------
@@ -479,9 +498,11 @@ async def create_webhook(
     name="webhooks.list",
     annotations={"readOnlyHint": True, "openWorldHint": True},
 )
-async def list_webhooks() -> str:
+async def list_webhooks(
+    limit: Annotated[int, Field(description="Maximum number of webhooks to return.")] = 100,
+) -> str:
     """List registered webhooks."""
-    return await _request("GET", "/v1/webhooks")
+    return await _request("GET", "/v1/webhooks", params={"limit": limit})
 
 
 @mcp.tool(
