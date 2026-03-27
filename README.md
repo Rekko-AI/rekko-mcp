@@ -1,6 +1,7 @@
 # Rekko MCP
 
 [![PyPI](https://img.shields.io/pypi/v/rekko-mcp)](https://pypi.org/project/rekko-mcp/)
+[![smithery badge](https://smithery.ai/badge/rekko-ai/rekko-mcp)](https://smithery.ai/servers/rekko-ai/rekko-mcp)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
 
