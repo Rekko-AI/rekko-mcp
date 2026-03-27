@@ -77,20 +77,20 @@ def analyze_bet(market_question: str) -> str:
     """Analyze a prediction market bet end-to-end: research, strategy signal, and trade recommendation."""
     return (
         f"Analyze this prediction market bet: {market_question}\n\n"
-        "1. Use markets.search to find the market\n"
-        "2. Use markets.history and markets.resolution for context\n"
-        "3. Use strategy.signal for a full analysis with position sizing\n"
+        "1. Use market.data.search to find the market\n"
+        "2. Use market.data.history and market.data.resolution for context\n"
+        "3. Use research.signal.get for a full analysis with position sizing\n"
         "4. Summarize: probability, edge, recommended action, and size"
     )
 
 
 # ---------------------------------------------------------------------------
-# markets.*  — browse, search, and inspect prediction markets
+# market.data.*  — browse, search, and inspect prediction markets
 # ---------------------------------------------------------------------------
 
 
 @mcp.tool(
-    name="markets.list",
+    name="market.data.list",
     annotations={"readOnlyHint": True, "openWorldHint": True},
 )
 async def list_markets(
@@ -105,7 +105,7 @@ async def list_markets(
 
 
 @mcp.tool(
-    name="markets.get",
+    name="market.data.get",
     annotations={"readOnlyHint": True, "openWorldHint": True},
 )
 async def get_market(
@@ -119,7 +119,7 @@ async def get_market(
 
 
 @mcp.tool(
-    name="markets.search",
+    name="market.data.search",
     annotations={"readOnlyHint": True, "openWorldHint": True},
 )
 async def search_markets(
@@ -131,7 +131,7 @@ async def search_markets(
 
 
 @mcp.tool(
-    name="markets.history",
+    name="market.data.history",
     annotations={"readOnlyHint": True, "openWorldHint": True},
 )
 async def get_market_history(
@@ -149,7 +149,7 @@ async def get_market_history(
 
 
 @mcp.tool(
-    name="markets.resolution",
+    name="market.data.resolution",
     annotations={"readOnlyHint": True, "openWorldHint": True},
 )
 async def get_resolution(
@@ -161,7 +161,7 @@ async def get_resolution(
 
 
 @mcp.tool(
-    name="markets.execution",
+    name="market.data.execution",
     annotations={"readOnlyHint": True, "openWorldHint": True},
 )
 async def get_execution_guidance(
@@ -173,7 +173,7 @@ async def get_execution_guidance(
 
 
 @mcp.tool(
-    name="markets.screen",
+    name="market.data.screen",
     annotations={"readOnlyHint": True, "openWorldHint": True},
 )
 async def screen_markets(
@@ -200,7 +200,7 @@ async def screen_markets(
 
 
 @mcp.tool(
-    name="markets.scrape",
+    name="market.data.scrape",
     annotations={"readOnlyHint": False, "openWorldHint": True},
 )
 async def run_scraper(
@@ -211,12 +211,12 @@ async def run_scraper(
 
 
 # ---------------------------------------------------------------------------
-# analysis.*  — deep research pipelines
+# research.pipe.*  — deep research pipelines
 # ---------------------------------------------------------------------------
 
 
 @mcp.tool(
-    name="analysis.start",
+    name="research.pipe.start",
     annotations={"readOnlyHint": True, "openWorldHint": True},
 )
 async def analyze_market(
@@ -225,8 +225,8 @@ async def analyze_market(
 ) -> str:
     """Start a deep research analysis pipeline for a prediction market bet.
 
-    Returns immediately with an analysis_id. Poll with analysis.status
-    every 5 seconds until complete, then retrieve results with analysis.get.
+    Returns immediately with an analysis_id. Poll with research.pipe.status
+    every 5 seconds until complete, then retrieve results with research.pipe.get.
     """
     body: dict = {"bet_text": bet_text}
     if platform:
@@ -235,18 +235,18 @@ async def analyze_market(
 
 
 @mcp.tool(
-    name="analysis.status",
+    name="research.pipe.status",
     annotations={"readOnlyHint": True, "openWorldHint": True},
 )
 async def check_analysis_status(
-    analysis_id: Annotated[str, Field(description="Analysis identifier returned by analysis.start.")],
+    analysis_id: Annotated[str, Field(description="Analysis identifier returned by research.pipe.start.")],
 ) -> str:
     """Check the current status of a running or completed analysis."""
     return await _request("GET", f"/v1/insights/{analysis_id}/status")
 
 
 @mcp.tool(
-    name="analysis.get",
+    name="research.pipe.get",
     annotations={"readOnlyHint": True, "openWorldHint": True},
 )
 async def get_analysis(
@@ -261,7 +261,7 @@ async def get_analysis(
 
 
 @mcp.tool(
-    name="analysis.list",
+    name="research.pipe.list",
     annotations={"readOnlyHint": True, "openWorldHint": True},
 )
 async def list_analyses(
@@ -272,12 +272,12 @@ async def list_analyses(
 
 
 # ---------------------------------------------------------------------------
-# strategy.*  — signals, portfolio strategy, calibration, consensus
+# research.signal.*  — signals, portfolio strategy, calibration, consensus
 # ---------------------------------------------------------------------------
 
 
 @mcp.tool(
-    name="strategy.signal",
+    name="research.signal.signal",
     annotations={"readOnlyHint": True, "openWorldHint": True},
 )
 async def get_strategy(
@@ -287,7 +287,7 @@ async def get_strategy(
     """Run a full analysis and return a strategy signal with causal decomposition.
 
     This is a blocking call that takes 30-90 seconds. For async control, use
-    analysis.start + analysis.status + analysis.get instead.
+    research.pipe.start + research.pipe.status + research.pipe.get instead.
     """
     body: dict = {"market_query": market_query}
     if risk_limit > 0:
@@ -296,7 +296,7 @@ async def get_strategy(
 
 
 @mcp.tool(
-    name="strategy.portfolio",
+    name="research.signal.portfolio",
     annotations={"readOnlyHint": True, "openWorldHint": True},
 )
 async def get_portfolio_strategy(
@@ -317,7 +317,7 @@ async def get_portfolio_strategy(
 
 
 @mcp.tool(
-    name="strategy.calibration",
+    name="research.signal.calibration",
     annotations={"readOnlyHint": True, "openWorldHint": True},
 )
 async def get_calibration(
@@ -333,7 +333,7 @@ async def get_calibration(
 
 
 @mcp.tool(
-    name="strategy.consensus",
+    name="research.signal.consensus",
     annotations={"readOnlyHint": True, "openWorldHint": True},
 )
 async def get_consensus(
@@ -350,12 +350,12 @@ async def get_consensus(
 
 
 # ---------------------------------------------------------------------------
-# arbitrage.*  — cross-platform spread detection and correlation
+# market.arb.*  — cross-platform spread detection and correlation
 # ---------------------------------------------------------------------------
 
 
 @mcp.tool(
-    name="arbitrage.get",
+    name="market.arb.get",
     annotations={"readOnlyHint": True, "openWorldHint": True},
 )
 async def get_arbitrage(
@@ -366,7 +366,7 @@ async def get_arbitrage(
 
 
 @mcp.tool(
-    name="arbitrage.live",
+    name="market.arb.live",
     annotations={"readOnlyHint": True, "openWorldHint": True},
 )
 async def get_arbitrage_live(
@@ -377,7 +377,7 @@ async def get_arbitrage_live(
 
 
 @mcp.tool(
-    name="arbitrage.correlation",
+    name="market.arb.correlation",
     annotations={"readOnlyHint": True, "openWorldHint": True},
 )
 async def get_correlation(
@@ -394,12 +394,12 @@ async def get_correlation(
 
 
 # ---------------------------------------------------------------------------
-# trading.*  — shadow trades, reporting, portfolio, performance
+# trade.book.*  — shadow trades, reporting, portfolio, performance
 # ---------------------------------------------------------------------------
 
 
 @mcp.tool(
-    name="trading.shadow",
+    name="trade.book.shadow",
     annotations={"readOnlyHint": False, "openWorldHint": True},
 )
 async def place_shadow_trade(
@@ -416,7 +416,7 @@ async def place_shadow_trade(
 
 
 @mcp.tool(
-    name="trading.report",
+    name="trade.book.report",
     annotations={"readOnlyHint": False, "openWorldHint": True},
 )
 async def report_trade(
@@ -441,7 +441,7 @@ async def report_trade(
 
 
 @mcp.tool(
-    name="trading.portfolio",
+    name="trade.book.portfolio",
     annotations={"readOnlyHint": True, "openWorldHint": True},
 )
 async def get_portfolio(
@@ -452,7 +452,7 @@ async def get_portfolio(
 
 
 @mcp.tool(
-    name="trading.performance",
+    name="trade.book.performance",
     annotations={"readOnlyHint": True, "openWorldHint": True},
 )
 async def get_performance(
@@ -463,7 +463,7 @@ async def get_performance(
 
 
 @mcp.tool(
-    name="trading.resolve",
+    name="trade.book.resolve",
     annotations={"readOnlyHint": False, "openWorldHint": True},
 )
 async def check_resolutions(
@@ -474,12 +474,12 @@ async def check_resolutions(
 
 
 # ---------------------------------------------------------------------------
-# webhooks.*  — real-time event notifications
+# trade.hooks.*  — real-time event notifications
 # ---------------------------------------------------------------------------
 
 
 @mcp.tool(
-    name="webhooks.create",
+    name="trade.hooks.create",
     annotations={"readOnlyHint": False, "openWorldHint": True},
 )
 async def create_webhook(
@@ -495,7 +495,7 @@ async def create_webhook(
 
 
 @mcp.tool(
-    name="webhooks.list",
+    name="trade.hooks.list",
     annotations={"readOnlyHint": True, "openWorldHint": True},
 )
 async def list_webhooks(
@@ -506,11 +506,11 @@ async def list_webhooks(
 
 
 @mcp.tool(
-    name="webhooks.delete",
+    name="trade.hooks.delete",
     annotations={"readOnlyHint": False, "openWorldHint": True},
 )
 async def delete_webhook(
-    webhook_id: Annotated[str, Field(description="Webhook identifier returned by webhooks.create.")],
+    webhook_id: Annotated[str, Field(description="Webhook identifier returned by trade.hooks.create.")],
 ) -> str:
     """Remove a registered webhook."""
     return await _request("DELETE", f"/v1/webhooks/{webhook_id}")
