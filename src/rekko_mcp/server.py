@@ -92,7 +92,7 @@ _WRITE_SLOW = ToolAnnotations(readOnlyHint=False, destructiveHint=False, openWor
 # ---------------------------------------------------------------------------
 
 
-@mcp.tool(annotations=_READ)
+@mcp.tool(title="List Markets", annotations=_READ)
 async def list_markets(
     source: str = Field("", description="Filter by platform: 'kalshi', 'polymarket', or '' for all"),
     limit: int = Field(30, description="Maximum number of markets to return (1-100)"),
@@ -104,7 +104,7 @@ async def list_markets(
     return await _request("GET", "/v1/markets", params=params)
 
 
-@mcp.tool(annotations=_READ)
+@mcp.tool(title="Get Market", annotations=_READ)
 async def get_market(
     market_id: str = Field(description="Platform-specific market identifier (e.g. Kalshi ticker or Polymarket slug)"),
     source: str = Field("", description="Platform hint: 'kalshi', 'polymarket', or '' to search both"),
@@ -115,7 +115,7 @@ async def get_market(
     return await _request("GET", "/v1/markets", params={"query": market_id, "limit": 1})
 
 
-@mcp.tool(annotations=_READ)
+@mcp.tool(title="Search Markets", annotations=_READ)
 async def search_markets(
     query: str = Field(description="Search query string to match against market titles"),
     limit: int = Field(20, description="Maximum number of results to return"),
@@ -124,7 +124,7 @@ async def search_markets(
     return await _request("GET", "/v1/markets", params={"query": query, "limit": limit})
 
 
-@mcp.tool(annotations=_READ_IDEM)
+@mcp.tool(title="Market Price History", annotations=_READ_IDEM)
 async def get_market_history(
     platform: str = Field(description="Platform: 'kalshi' or 'polymarket'"),
     market_id: str = Field(description="Platform-specific market identifier"),
@@ -139,7 +139,7 @@ async def get_market_history(
     )
 
 
-@mcp.tool(annotations=_READ)
+@mcp.tool(title="Resolution Intelligence", annotations=_READ)
 async def get_resolution(
     platform: str = Field(description="Platform: 'kalshi' or 'polymarket'"),
     market_id: str = Field(description="Platform-specific market identifier"),
@@ -148,7 +148,7 @@ async def get_resolution(
     return await _request("GET", f"/v1/markets/{platform}/{market_id}/resolution")
 
 
-@mcp.tool(annotations=_READ)
+@mcp.tool(title="Execution Guidance", annotations=_READ)
 async def get_execution_guidance(
     platform: str = Field(description="Platform: 'kalshi' or 'polymarket'"),
     market_id: str = Field(description="Platform-specific market identifier"),
@@ -162,7 +162,7 @@ async def get_execution_guidance(
 # ---------------------------------------------------------------------------
 
 
-@mcp.tool(annotations=_READ)
+@mcp.tool(title="Screen Markets", annotations=_READ)
 async def screen_markets(
     market_ids: list[str] | None = Field(None, description="Optional list of specific market IDs to screen"),
     platform: str = Field("", description="Filter by platform: 'kalshi', 'polymarket', or '' for all"),
@@ -183,7 +183,7 @@ async def screen_markets(
     return await _request("POST", "/v1/screen", json=body)
 
 
-@mcp.tool(annotations=_READ_IDEM)
+@mcp.tool(title="Calibration Metrics", annotations=_READ_IDEM)
 async def get_calibration(
     category: str = Field("", description="Filter by category (e.g. 'crypto', 'politics') or '' for all"),
     period: str = Field("all", description="Time period: '7d', '30d', '90d', or 'all'"),
@@ -201,7 +201,7 @@ async def get_calibration(
 # ---------------------------------------------------------------------------
 
 
-@mcp.tool(annotations=_WRITE_SLOW)
+@mcp.tool(title="Start Analysis", annotations=_WRITE_SLOW)
 async def analyze_market(
     bet_text: str = Field(description="Description of the bet or market question to analyze"),
     platform: str = Field("", description="Source platform hint: 'kalshi', 'polymarket', or ''"),
@@ -213,7 +213,7 @@ async def analyze_market(
     return await _request("POST", "/v1/insights", json=body)
 
 
-@mcp.tool(annotations=_READ_IDEM)
+@mcp.tool(title="Check Analysis Status", annotations=_READ_IDEM)
 async def check_analysis_status(
     analysis_id: str = Field(description="Analysis identifier returned by analyze_market"),
 ) -> str:
@@ -221,7 +221,7 @@ async def check_analysis_status(
     return await _request("GET", f"/v1/insights/{analysis_id}/status")
 
 
-@mcp.tool(annotations=_READ)
+@mcp.tool(title="Get Analysis Result", annotations=_READ)
 async def get_analysis(
     analysis_id: str = Field(description="Analysis identifier for a completed analysis"),
 ) -> str:
@@ -229,7 +229,7 @@ async def get_analysis(
     return await _request("GET", f"/v1/insights/{analysis_id}")
 
 
-@mcp.tool(annotations=_READ)
+@mcp.tool(title="List Analyses", annotations=_READ)
 async def list_analyses(
     limit: int = Field(20, description="Maximum number of analyses to return"),
 ) -> str:
@@ -242,7 +242,7 @@ async def list_analyses(
 # ---------------------------------------------------------------------------
 
 
-@mcp.tool(annotations=_WRITE_SLOW)
+@mcp.tool(title="Get Strategy Signal", annotations=_WRITE_SLOW)
 async def get_strategy(
     market_query: str = Field(description="Description of the bet or market question to analyze"),
     risk_limit: float = Field(0.0, description="Reserved for position sizing constraints"),
@@ -254,7 +254,7 @@ async def get_strategy(
     return await _request("POST", "/v1/signals", json=body)
 
 
-@mcp.tool(annotations=_WRITE_SLOW)
+@mcp.tool(title="Portfolio Strategy", annotations=_WRITE_SLOW)
 async def get_portfolio_strategy(
     market_query: str = Field(description="Description of the bet or market question to analyze"),
     portfolio: list[dict] | None = Field(None, description="Current positions: list of {ticker, side, size_usd}"),
@@ -272,7 +272,7 @@ async def get_portfolio_strategy(
     return await _request("POST", "/v1/signals/portfolio", json=body)
 
 
-@mcp.tool(annotations=_READ)
+@mcp.tool(title="Consensus Probability", annotations=_READ)
 async def get_consensus(
     market_id: str = Field(description="Platform-specific market identifier"),
     platform: str = Field("kalshi", description="Platform: 'kalshi' or 'polymarket'"),
@@ -291,7 +291,7 @@ async def get_consensus(
 # ---------------------------------------------------------------------------
 
 
-@mcp.tool(annotations=_READ)
+@mcp.tool(title="Arbitrage Opportunities", annotations=_READ)
 async def get_arbitrage(
     min_spread: float = Field(0.02, description="Minimum spread threshold (0.0-1.0). Default 0.02 (2%)"),
 ) -> str:
@@ -299,7 +299,7 @@ async def get_arbitrage(
     return await _request("GET", "/v1/arbitrage", params={"min_spread": min_spread})
 
 
-@mcp.tool(annotations=_READ)
+@mcp.tool(title="Live Arbitrage Scan", annotations=_READ)
 async def get_arbitrage_live(
     min_spread: float = Field(0.02, description="Minimum spread threshold (0.0-1.0). Default 0.02 (2%)"),
 ) -> str:
@@ -312,7 +312,7 @@ async def get_arbitrage_live(
 # ---------------------------------------------------------------------------
 
 
-@mcp.tool(annotations=_READ)
+@mcp.tool(title="Correlation Analysis", annotations=_READ)
 async def get_correlation(
     market_ids: list[str] = Field(description="List of market IDs to correlate (minimum 2)"),
     platform: str = Field("kalshi", description="Platform: 'kalshi' or 'polymarket'"),
@@ -331,7 +331,7 @@ async def get_correlation(
 # ---------------------------------------------------------------------------
 
 
-@mcp.tool(annotations=_WRITE)
+@mcp.tool(title="Place Shadow Trade", annotations=_WRITE)
 async def place_shadow_trade(
     ticker: str = Field(description="Market ticker symbol (e.g. 'KXBTC-100K')"),
     side: str = Field(description="Trade direction: 'yes' or 'no'"),
@@ -345,7 +345,7 @@ async def place_shadow_trade(
     )
 
 
-@mcp.tool(annotations=_WRITE)
+@mcp.tool(title="Report Trade", annotations=_WRITE)
 async def report_trade(
     market_id: str = Field(description="Platform-specific market identifier"),
     platform: str = Field(description="Platform: 'kalshi' or 'polymarket'"),
@@ -367,7 +367,7 @@ async def report_trade(
     )
 
 
-@mcp.tool(annotations=_READ)
+@mcp.tool(title="Get Portfolio", annotations=_READ)
 async def get_portfolio(
     mode: str = Field("shadow", description="Portfolio mode: 'shadow' for paper trades, 'live' for real trades"),
 ) -> str:
@@ -375,7 +375,7 @@ async def get_portfolio(
     return await _request("GET", "/v1/portfolio", params={"mode": mode})
 
 
-@mcp.tool(annotations=_READ_IDEM)
+@mcp.tool(title="Performance Stats", annotations=_READ_IDEM)
 async def get_performance(
     mode: str = Field("shadow", description="Portfolio mode: 'shadow' for paper trades, 'live' for real trades"),
 ) -> str:
@@ -383,10 +383,12 @@ async def get_performance(
     return await _request("GET", "/v1/performance", params={"mode": mode})
 
 
-@mcp.tool(annotations=_WRITE)
-async def check_resolutions() -> str:
+@mcp.tool(title="Check Resolutions", annotations=_WRITE)
+async def check_resolutions(
+    mode: str = Field("shadow", description="Portfolio mode to check: 'shadow' or 'live'"),
+) -> str:
     """Check all open trades for market resolution and update P&L."""
-    return await _request("POST", "/v1/trades/resolve")
+    return await _request("POST", "/v1/trades/resolve", json={"mode": mode})
 
 
 # ---------------------------------------------------------------------------
@@ -394,7 +396,7 @@ async def check_resolutions() -> str:
 # ---------------------------------------------------------------------------
 
 
-@mcp.tool(annotations=_WRITE)
+@mcp.tool(title="Run Scraper", annotations=_WRITE)
 async def run_scraper(
     source: str = Field(description="Which scraper to run: 'kalshi', 'polymarket', or 'arbitrage'"),
 ) -> str:
@@ -407,7 +409,7 @@ async def run_scraper(
 # ---------------------------------------------------------------------------
 
 
-@mcp.tool(annotations=_WRITE)
+@mcp.tool(title="Create Webhook", annotations=_WRITE)
 async def create_webhook(
     url: str = Field(description="HTTPS URL to receive POST notifications"),
     events: list[str] = Field(description="Event types: 'whale_alert', 'price_shift', 'analysis_complete'"),
@@ -420,13 +422,15 @@ async def create_webhook(
     return await _request("POST", "/v1/webhooks", json=body)
 
 
-@mcp.tool(annotations=_READ)
-async def list_webhooks() -> str:
+@mcp.tool(title="List Webhooks", annotations=_READ)
+async def list_webhooks(
+    limit: int = Field(50, description="Maximum number of webhooks to return"),
+) -> str:
     """List registered webhooks."""
-    return await _request("GET", "/v1/webhooks")
+    return await _request("GET", "/v1/webhooks", params={"limit": limit})
 
 
-@mcp.tool(annotations=ToolAnnotations(readOnlyHint=False, destructiveHint=True))
+@mcp.tool(title="Delete Webhook", annotations=ToolAnnotations(readOnlyHint=False, destructiveHint=True))
 async def delete_webhook(
     webhook_id: str = Field(description="Webhook identifier returned by create_webhook"),
 ) -> str:
