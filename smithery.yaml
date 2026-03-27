@@ -1,0 +1,21 @@
+# Smithery configuration file: https://smithery.ai/docs/config#smitheryyaml
+
+startCommand:
+  type: stdio
+  configSchema:
+    type: object
+    required:
+      - REKKO_API_KEY
+    properties:
+      REKKO_API_KEY:
+        type: string
+        title: "Rekko API Key"
+        description: "Your Rekko AI API key. Get one free at https://rekko.ai/dashboard"
+  commandFunction: |-
+    (config) => ({
+      command: "uvx",
+      args: ["rekko-mcp"],
+      env: {
+        REKKO_API_KEY: config.REKKO_API_KEY
+      }
+    })
