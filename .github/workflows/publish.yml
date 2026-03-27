@@ -33,7 +33,7 @@ jobs:
 
       - name: Publish to Smithery
         env:
-          SMITHERY_TOKEN: ${{ secrets.SMITHERY_TOKEN }}
+          SMITHERY_API_KEY: ${{ secrets.SMITHERY_TOKEN }}
         run: |
           npx @smithery/cli@latest mcp publish \
             "https://api.rekko.ai/mcp" \
