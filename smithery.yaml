@@ -11,11 +11,17 @@ startCommand:
         type: string
         title: "Rekko API Key"
         description: "Your Rekko AI API key. Get one free at https://rekko.ai/dashboard"
+      REKKO_API_URL:
+        type: string
+        title: "API Base URL"
+        description: "Custom API base URL (default: https://api.rekko.ai)"
+        default: "https://api.rekko.ai"
   commandFunction: |-
     (config) => ({
       command: "uvx",
       args: ["rekko-mcp"],
       env: {
-        REKKO_API_KEY: config.REKKO_API_KEY
+        REKKO_API_KEY: config.REKKO_API_KEY,
+        ...(config.REKKO_API_URL ? { REKKO_API_URL: config.REKKO_API_URL } : {})
       }
     })
