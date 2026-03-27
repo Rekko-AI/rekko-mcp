@@ -1,11 +1,11 @@
-name: Publish to PyPI
+name: Publish to PyPI & Smithery
 
 on:
   push:
     tags: ["v*"]
 
 jobs:
-  publish:
+  pypi:
     runs-on: ubuntu-latest
     environment: pypi
     permissions:
@@ -18,3 +18,33 @@ jobs:
       - run: pip install build
       - run: python -m build
       - uses: pypa/gh-action-pypi-publish@release/v1
+
+  smithery:
+    needs: pypi
+    runs-on: ubuntu-latest
+    if: ${{ vars.SMITHERY_ENABLED != 'false' }}
+    steps:
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Wait for Render deploy
+        run: sleep 180
+
+      - name: Publish to Smithery
+        env:
+          SMITHERY_TOKEN: ${{ secrets.SMITHERY_TOKEN }}
+        run: |
+          npx @smithery/cli@latest mcp publish \
+            "https://api.rekko.ai/mcp" \
+            --name rekko-ai/rekko-mcp \
+            --config-schema '{
+              "type": "object",
+              "properties": {
+                "REKKO_API_KEY": {
+                  "type": "string",
+                  "description": "Your Rekko AI API key. Get one free at https://rekko.ai/dashboard",
+                  "x-from": "env"
+                }
+              }
+            }'
