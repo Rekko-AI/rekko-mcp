@@ -1,5 +1,7 @@
 {
   "$schema": "https://context7.com/schema/context7.json",
+  "url": "https://context7.com/rekko-ai/rekko-mcp",
+  "public_key": "pk_MfRhTzRGAQOnu20cIktpW",
   "projectTitle": "Rekko MCP Server",
   "description": "MCP server for Rekko AI prediction market intelligence — 25 tools for AI coding assistants (Claude Code, Cursor, Windsurf).",
   "excludeFolders": [
