@@ -1,26 +1,23 @@
-# Rekko MCP
+# rekko-mcp
 
-[![PyPI](https://img.shields.io/pypi/v/rekko-mcp)](https://pypi.org/project/rekko-mcp/)
-[![smithery badge](https://smithery.ai/badge/rekko-ai/rekko-mcp)](https://smithery.ai/servers/rekko-ai/rekko-mcp)
-[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
-[![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
-
-Prediction market intelligence for AI coding assistants. Deep causal research, arbitrage detection, screening, and strategy signals for **Kalshi**, **Polymarket**, and **Robinhood**.
+Prediction market intelligence for AI coding assistants. 26+ MCP tools for market data, deep analysis, trading signals, arbitrage detection, portfolio management, and developer quickstart across **Kalshi**, **Polymarket**, and **Robinhood**.
 
 ## Install
 
 ```bash
-# Zero-install via uvx
 uvx rekko-mcp
-
-# Or install from PyPI
+# or
 pip install rekko-mcp
 ```
 
-### Claude Code
+Requires Python 3.11+ and a [Rekko API key](https://rekko.ai/dashboard) (free tier available).
+
+## Configure
+
+**Claude Code:**
 
 ```bash
-claude mcp add rekko -- uvx rekko-mcp
+claude plugin install rekko
 ```
 
 Or add to `.mcp.json`:
@@ -31,72 +28,61 @@ Or add to `.mcp.json`:
     "rekko": {
       "command": "uvx",
       "args": ["rekko-mcp"],
-      "env": {
-        "REKKO_API_KEY": "rk_free_your_key_here"
-      }
+      "env": { "REKKO_API_KEY": "rk_free_your_key_here" }
     }
   }
 }
 ```
 
-### Cursor / Windsurf
+**Cursor** — same `.mcp.json` format in `.cursor/mcp.json`.
 
-Add to your MCP configuration with the same `uvx rekko-mcp` command and `REKKO_API_KEY` env var.
+## What You Get
 
-## Setup
+- **Market data** — browse, search, and get price history across Kalshi, Polymarket, and Robinhood
+- **Deep analysis** — multi-stage AI research pipeline with probability estimates and causal decomposition (30-90s)
+- **Trading signals** — edge assessment, confidence scoring, Kelly criterion position sizing
+- **Arbitrage** — cross-platform spread detection between Kalshi and Polymarket
+- **Portfolio** — shadow (paper) trading with P&L tracking and performance metrics
+- **Screening** — batch score markets by volume, movement, and opportunity
+- **Webhooks** — real-time alerts for price shifts and whale trades
+- **Quickstart** — working code snippets for Python, curl, and MCP config to get started in under 5 minutes
 
-1. Get an API key at [rekko.ai](https://rekko.ai/dashboard) (free tier available)
-2. Set your key: `export REKKO_API_KEY=rk_free_...`
-3. Start using — tools appear as `mcp__rekko__*` automatically
+## Quick Examples
 
-## Example prompts
+```
+"What are the top prediction markets right now?"
+"Analyze the Fed rate decision market on Kalshi"
+"Find arbitrage opportunities above 3% spread"
+"Screen the top 50 Kalshi markets and analyze anything actionable"
+"Show my shadow portfolio performance"
+"Show me a quickstart for Python"
+```
 
-- "What are the top prediction markets right now?"
-- "Analyze the Fed rate decision market on Kalshi"
-- "Find arbitrage opportunities above 3% spread"
-- "Screen the top 50 Kalshi markets and analyze anything actionable"
-- "Show my shadow portfolio performance"
+## Tutorials
 
-## What you get
-
-**25 MCP tools** integrated natively into your AI assistant:
-
-| Category | Tools |
-|----------|-------|
-| Market intelligence | `list_markets`, `get_market`, `search_markets`, `get_market_history`, `get_resolution`, `get_execution_guidance` |
-| Screening | `screen_markets`, `get_calibration` |
-| Deep research | `analyze_market`, `check_analysis_status`, `get_analysis`, `list_analyses` |
-| Strategy | `get_strategy`, `get_portfolio_strategy`, `get_consensus` |
-| Arbitrage | `get_arbitrage`, `get_arbitrage_live` |
-| Correlation | `get_correlation` |
-| Trading | `place_shadow_trade`, `report_trade`, `get_portfolio`, `get_performance`, `check_resolutions` |
-| Data | `run_scraper` |
-| Webhooks | `create_webhook`, `list_webhooks`, `delete_webhook` |
+- [Prediction Market API Comparison](https://rekko.ai/docs/guides/prediction-market-api-comparison) — Kalshi vs Polymarket vs Robinhood APIs compared
+- [Build a Trading Bot with Python](https://rekko.ai/docs/guides/build-trading-bot-python) — End-to-end bot with screening, analysis, and signals
+- [Kalshi API Guide](https://rekko.ai/docs/guides/kalshi-api-guide) — RSA-PSS auth, endpoints, and adding AI analysis
+- [Polymarket API Guide](https://rekko.ai/docs/guides/polymarket-api-guide) — CLOB, py-clob-client, and AI-powered analysis
+- [MCP Trading Workflow](https://rekko.ai/docs/guides/mcp-trading-workflow) — Natural language market research from your IDE
+- [Cross-Platform Arbitrage](https://rekko.ai/docs/guides/prediction-market-arbitrage) — Find price gaps between platforms
+- [Kelly Criterion Sizing](https://rekko.ai/docs/guides/kelly-criterion-position-sizing) — Optimal position sizing
 
 ## Pricing
 
-| Tier | Price/call | What you get |
-|------|-----------|--------------|
-| Free | $0.00 | Calibration metrics, health check |
-| Listing | $0.01 | Browse and search markets, price history |
-| Insight | $0.10 | Start analyses, screen markets, resolution intelligence |
-| Strategy | $2.00 | Strategy signals, portfolio-aware sizing, consensus |
-| Deep | $5.00 | Arbitrage scanning, correlation analysis, webhooks |
+| Tier | Per call | Includes |
+|------|----------|----------|
+| Free | $0.00 | Calibration, health check |
+| Listing | $0.01 | Market data, price history |
+| Insight | $0.10 | Analysis, screening, resolution |
+| Strategy | $2.00 | Signals, portfolio sizing, consensus |
+| Deep | $5.00 | Arbitrage, correlation, webhooks |
 
-Full pricing details at [rekko.ai/docs/pricing](https://rekko.ai/docs/pricing).
-
-## Chaining with execution skills
-
-Rekko provides the intelligence — chain with execution skills for trading:
-
-- **PolyClaw** — execute trades on Polymarket
-- **Kalshi Trader** — execute trades on Kalshi
-
-Example flow: Rekko analysis → strategy signal → PolyClaw executes the trade.
+Free plan: 100 listing + 10 insight calls/month. [Upgrade to Pro](https://rekko.ai/dashboard) for higher limits.
 
 ## Links
 
-- [rekko.ai/docs](https://rekko.ai/docs) — Full documentation
-- [API Reference](https://rekko.ai/docs/api-reference/introduction) — Direct API access
-- [RapidAPI](https://rapidapi.com/rekko-ai-rekko-ai-default/api/rekko-ai-prediction-market-intelligence) — Marketplace subscription
-- [Discord](https://discord.gg/qTPEk9aAZg) — Community
+- [rekko.ai](https://rekko.ai) — Home
+- [Documentation](https://rekko.ai/docs) — Full API reference and tutorials
+- [OpenAPI Spec](https://api.rekko.ai/openapi.json) — Machine-readable API schema
+- [RapidAPI](https://rapidapi.com/rekko-ai-rekko-ai-default/api/rekko-ai-prediction-market-intelligence) — Marketplace listing
