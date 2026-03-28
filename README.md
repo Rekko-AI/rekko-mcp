@@ -1,5 +1,7 @@
 # rekko-mcp
 
+[![rekko-mcp MCP server](https://glama.ai/mcp/servers/Rekko-AI/rekko-mcp/badges/score.svg)](https://glama.ai/mcp/servers/Rekko-AI/rekko-mcp)
+
 Prediction market intelligence for AI coding assistants. 26+ MCP tools for market data, deep analysis, trading signals, arbitrage detection, portfolio management, and developer quickstart across **Kalshi**, **Polymarket**, and **Robinhood**.
 
 ## Install
