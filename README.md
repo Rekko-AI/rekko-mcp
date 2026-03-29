@@ -2,7 +2,7 @@
 
 [![rekko-mcp MCP server](https://glama.ai/mcp/servers/Rekko-AI/rekko-mcp/badges/card.svg)](https://glama.ai/mcp/servers/Rekko-AI/rekko-mcp)
 
-Prediction market intelligence for AI coding assistants. 26+ MCP tools for market data, deep analysis, trading signals, arbitrage detection, portfolio management, and developer quickstart across **Kalshi**, **Polymarket**, and **Robinhood**.
+Prediction market intelligence for AI coding assistants. 24 MCP tools for market data, deep analysis, trading signals, arbitrage detection, and screening across **Kalshi**, **Polymarket**, and **Robinhood**.
 
 ## Install
 
@@ -44,8 +44,8 @@ Or add to `.mcp.json`:
 - **Deep analysis** — multi-stage AI research pipeline with probability estimates and causal decomposition (30-90s)
 - **Trading signals** — edge assessment, confidence scoring, Kelly criterion position sizing
 - **Arbitrage** — cross-platform spread detection between Kalshi and Polymarket
-- **Portfolio** — shadow (paper) trading with P&L tracking and performance metrics
 - **Screening** — batch score markets by volume, movement, and opportunity
+- **Performance** — trading track record and calibration metrics
 - **Webhooks** — real-time alerts for price shifts and whale trades
 - **Quickstart** — working code snippets for Python, curl, and MCP config to get started in under 5 minutes
 
@@ -56,7 +56,6 @@ Or add to `.mcp.json`:
 "Analyze the Fed rate decision market on Kalshi"
 "Find arbitrage opportunities above 3% spread"
 "Screen the top 50 Kalshi markets and analyze anything actionable"
-"Show my shadow portfolio performance"
 "Show me a quickstart for Python"
 ```
 
