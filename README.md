@@ -85,5 +85,6 @@ Free plan: 100 listing + 10 insight calls/month. [Upgrade to Pro](https://rekko.
 
 - [rekko.ai](https://rekko.ai) — Home
 - [Documentation](https://rekko.ai/docs) — Full API reference and tutorials
+- [Status](https://status.rekko.ai) — API uptime and incident history
 - [OpenAPI Spec](https://api.rekko.ai/openapi.json) — Machine-readable API schema
 - [RapidAPI](https://rapidapi.com/rekko-ai-rekko-ai-default/api/rekko-ai-prediction-market-intelligence) — Marketplace listing
