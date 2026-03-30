@@ -22,11 +22,11 @@ REKKO_API_BASE = "https://api.rekko.ai"
 mcp = FastMCP(
     "rekko",
     instructions=(
-        "Rekko AI provides prediction market intelligence for Kalshi and "
-        "Polymarket — deep causal research, arbitrage detection, screening, "
-        "and strategy signals. Use these tools to browse markets, run analysis "
-        "pipelines, scan for arbitrage, manage a shadow portfolio, and get "
-        "actionable trading signals."
+        "Rekko AI provides prediction market intelligence for Kalshi, "
+        "Polymarket, and Robinhood — deep causal research, arbitrage detection, "
+        "screening, and strategy signals. Use these tools to browse markets, "
+        "trigger analysis pipelines, scan for arbitrage, and get actionable "
+        "trading signals."
     ),
 )
 
@@ -50,21 +50,53 @@ _UPGRADE_MSG = (
 
 
 async def _request(method: str, path: str, **kwargs) -> str:
-    async with _get_client() as client:
-        resp = await client.request(method, path, **kwargs)
-        if resp.status_code in (401, 403):
-            return json.dumps({
-                "error": "auth_required",
-                "detail": _UPGRADE_MSG,
-            })
-        if resp.status_code == 402:
-            return json.dumps({
-                "error": "payment_required",
-                "detail": "This endpoint requires a paid API key. "
-                "Upgrade at https://rekko.ai or https://rapidapi.com/rekko-ai-rekko-ai-default/api/rekko-ai-prediction-market-intelligence",
-            })
-        resp.raise_for_status()
-        return resp.text
+    try:
+        async with _get_client() as client:
+            resp = await client.request(method, path, **kwargs)
+            if resp.status_code in (401, 403):
+                return json.dumps({
+                    "error": "auth_required",
+                    "detail": _UPGRADE_MSG,
+                })
+            if resp.status_code == 402:
+                return json.dumps({
+                    "error": "payment_required",
+                    "detail": "This endpoint requires a paid API key. "
+                    "Upgrade at https://rekko.ai or https://rapidapi.com/rekko-ai-rekko-ai-default/api/rekko-ai-prediction-market-intelligence",
+                })
+            if resp.status_code == 404:
+                return json.dumps({
+                    "error": "not_found",
+                    "detail": f"Resource not found: {method} {path}",
+                })
+            if resp.status_code == 422:
+                body = resp.text
+                return json.dumps({
+                    "error": "validation_error",
+                    "detail": f"Invalid request parameters: {body[:500]}",
+                })
+            if resp.status_code == 429:
+                return json.dumps({
+                    "error": "rate_limited",
+                    "detail": "Too many requests. Wait a moment and try again.",
+                })
+            if resp.status_code >= 500:
+                return json.dumps({
+                    "error": "server_error",
+                    "detail": f"Rekko API returned {resp.status_code}. Try again shortly.",
+                })
+            resp.raise_for_status()
+            return resp.text
+    except httpx.ConnectError:
+        return json.dumps({
+            "error": "connection_error",
+            "detail": "Could not connect to api.rekko.ai. Check your network connection.",
+        })
+    except httpx.TimeoutException:
+        return json.dumps({
+            "error": "timeout",
+            "detail": "Request to Rekko API timed out. The analysis may still be running — try checking status.",
+        })
 
 
 # ---------------------------------------------------------------------------
@@ -79,9 +111,119 @@ def analyze_bet(market_question: str) -> str:
         f"Analyze this prediction market bet: {market_question}\n\n"
         "1. Use market.data.search to find the market\n"
         "2. Use market.data.history and market.data.resolution for context\n"
-        "3. Use research.signal.get for a full analysis with position sizing\n"
+        "3. Use research.signal.signal for a full analysis with position sizing\n"
         "4. Summarize: probability, edge, recommended action, and size"
     )
+
+
+@mcp.prompt()
+def find_arbitrage(min_spread: str = "3") -> str:
+    """Scan for cross-platform arbitrage opportunities between Kalshi and Polymarket."""
+    return (
+        f"Find prediction market arbitrage opportunities with at least {min_spread}% spread.\n\n"
+        "1. Use market.arb.live to run a fresh cross-platform scan\n"
+        "2. For the top 3 opportunities, use market.data.get on each side to verify prices are current\n"
+        "3. For the most promising opportunity, use market.data.history on both platforms to check if the spread is persistent or closing\n"
+        "4. Present a table: market, Kalshi price, Polymarket price, spread %, and whether to act now or wait"
+    )
+
+
+@mcp.prompt()
+def screen_top_markets(category: str = "") -> str:
+    """Find the best prediction markets to trade right now based on volume, movement, and opportunity."""
+    cat_filter = f' in the "{category}" category' if category else ""
+    return (
+        f"Find the most actionable prediction markets{cat_filter}.\n\n"
+        "1. Use market.data.screen to get scored markets sorted by opportunity\n"
+        "2. Filter to markets with action='analyze' (skip 'watch' and 'skip')\n"
+        "3. For the top 3, use market.data.history to check recent price movement\n"
+        "4. Present a ranked list with: title, current price, 24h volume, score, and a one-line thesis on why it's interesting"
+    )
+
+
+@mcp.prompt()
+def portfolio_review() -> str:
+    """Review trading performance and get recommendations for next moves."""
+    return (
+        "Review my prediction market trading performance and suggest next moves.\n\n"
+        "1. Use analytics.performance to get aggregate stats (win rate, ROI, total P&L)\n"
+        "2. Use market.data.list to see the current top markets\n"
+        "3. Summarize performance and recommend the most actionable opportunities"
+    )
+
+
+# ---------------------------------------------------------------------------
+# Resources
+# ---------------------------------------------------------------------------
+
+
+@mcp.resource("rekko://platforms")
+def platforms_resource() -> str:
+    """Supported prediction market platforms and their capabilities."""
+    return json.dumps({
+        "platforms": [
+            {
+                "name": "Kalshi",
+                "id": "kalshi",
+                "type": "regulated",
+                "regulator": "CFTC",
+                "data": True,
+                "url": "https://kalshi.com",
+            },
+            {
+                "name": "Polymarket",
+                "id": "polymarket",
+                "type": "decentralized",
+                "chain": "Polygon",
+                "data": True,
+                "url": "https://polymarket.com",
+            },
+            {
+                "name": "Robinhood",
+                "id": "robinhood",
+                "type": "brokerage",
+                "data": True,
+                "url": "https://robinhood.com/prediction-markets",
+                "note": "Data only — no public trading API",
+            },
+        ],
+        "arbitrage": {
+            "supported_pairs": ["kalshi-polymarket", "kalshi-robinhood"],
+            "min_spread_default": 0.02,
+        },
+    })
+
+
+@mcp.resource("rekko://pricing")
+def pricing_resource() -> str:
+    """API pricing tiers and rate limits."""
+    return json.dumps({
+        "currency": "USDC",
+        "free_plan": {
+            "price": "$0/month",
+            "includes": {"listing": 100, "insight": 10},
+            "rate_limit": "30 req/min",
+            "signup": "https://rekko.ai/dashboard",
+        },
+        "pro_plan": {
+            "price": "$49/month",
+            "includes": {"listing": 10000, "insight": 500, "strategy": 50, "deep": 10},
+            "rate_limit": "120 req/min",
+            "upgrade": "https://rekko.ai/dashboard",
+        },
+        "tiers": {
+            "listing": {"per_call": "$0.01", "endpoints": ["markets", "history", "search"]},
+            "insight": {"per_call": "$0.10", "endpoints": ["analysis", "screening", "resolution"]},
+            "strategy": {"per_call": "$2.00", "endpoints": ["signals", "execution", "consensus"]},
+            "deep": {"per_call": "$5.00", "endpoints": ["arbitrage", "correlation", "webhooks"]},
+        },
+        "x402": {
+            "enabled": True,
+            "network": "Base L2",
+            "asset": "USDC",
+            "note": "Pay-per-call with no account needed",
+        },
+    })
 
 
 # ---------------------------------------------------------------------------
@@ -97,7 +239,7 @@ async def list_markets(
     source: Annotated[str, Field(description='Filter by platform: "kalshi", "polymarket", or "" for all.')] = "",
     limit: Annotated[int, Field(description="Maximum number of markets to return (1-100).")] = 30,
 ) -> str:
-    """List current prediction markets from Kalshi and Polymarket."""
+    """List current prediction markets from Kalshi, Polymarket, and Robinhood."""
     params: dict = {"limit": limit}
     if source:
         params["source"] = source
@@ -109,13 +251,11 @@ async def list_markets(
     annotations={"readOnlyHint": True, "openWorldHint": True},
 )
 async def get_market(
+    platform: Annotated[str, Field(description='Platform: "kalshi", "polymarket", or "robinhood".')],
     market_id: Annotated[str, Field(description="Platform-specific market identifier (e.g. Kalshi ticker or Polymarket slug).")],
-    source: Annotated[str, Field(description='Platform hint: "kalshi", "polymarket", or "" to search both.')] = "",
 ) -> str:
     """Get detailed information about a specific prediction market."""
-    if source:
-        return await _request("GET", f"/v1/markets/{source}/{market_id}")
-    return await _request("GET", "/v1/markets", params={"query": market_id, "limit": 1})
+    return await _request("GET", f"/v1/markets/{platform}/{market_id}")
 
 
 @mcp.tool(
@@ -135,7 +275,7 @@ async def search_markets(
     annotations={"readOnlyHint": True, "openWorldHint": True},
 )
 async def get_market_history(
-    platform: Annotated[str, Field(description='Platform: "kalshi" or "polymarket".')],
+    platform: Annotated[str, Field(description='Platform: "kalshi", "polymarket", or "robinhood".')],
     market_id: Annotated[str, Field(description="Platform-specific market identifier.")],
     period: Annotated[str, Field(description='History window: "48h", "7d", or "30d".')] = "7d",
     max_points: Annotated[int, Field(description="Maximum data points to return.")] = 48,
@@ -153,7 +293,7 @@ async def get_market_history(
     annotations={"readOnlyHint": True, "openWorldHint": True},
 )
 async def get_resolution(
-    platform: Annotated[str, Field(description='Platform: "kalshi" or "polymarket".')],
+    platform: Annotated[str, Field(description='Platform: "kalshi", "polymarket", or "robinhood".')],
     market_id: Annotated[str, Field(description="Platform-specific market identifier.")],
 ) -> str:
     """Get resolution intelligence for a market — time urgency, mechanism, theta estimate."""
@@ -165,7 +305,7 @@ async def get_resolution(
     annotations={"readOnlyHint": True, "openWorldHint": True},
 )
 async def get_execution_guidance(
-    platform: Annotated[str, Field(description='Platform: "kalshi" or "polymarket".')],
+    platform: Annotated[str, Field(description='Platform: "kalshi", "polymarket", or "robinhood".')],
     market_id: Annotated[str, Field(description="Platform-specific market identifier.")],
 ) -> str:
     """Get execution guidance for a market — spread analysis, slippage estimate, order recommendation."""
@@ -199,39 +339,26 @@ async def screen_markets(
     return await _request("POST", "/v1/screen", json=body)
 
 
-@mcp.tool(
-    name="market.data.scrape",
-    annotations={"readOnlyHint": False, "openWorldHint": True},
-)
-async def run_scraper(
-    source: Annotated[str, Field(description='Which scraper to run: "kalshi", "polymarket", or "arbitrage".')],
-) -> str:
-    """Fetch fresh market data from a platform scraper."""
-    return await _request("POST", "/v1/scrapers/run", json={"source": source})
-
-
 # ---------------------------------------------------------------------------
-# research.pipe.*  — deep research pipelines
+# research.pipe.*  — deep research analysis pipelines
 # ---------------------------------------------------------------------------
 
 
 @mcp.tool(
     name="research.pipe.start",
-    annotations={"readOnlyHint": True, "openWorldHint": True},
+    annotations={"readOnlyHint": False, "openWorldHint": True},
 )
 async def analyze_market(
-    bet_text: Annotated[str, Field(description="Description of the bet or market question to analyze.")],
-    platform: Annotated[str, Field(description='Source platform hint: "kalshi", "polymarket", or "".')] = "",
+    platform: Annotated[str, Field(description='Platform: "kalshi", "polymarket", or "robinhood".')],
+    market_id: Annotated[str, Field(description="Platform-specific market identifier (e.g. Kalshi ticker or Polymarket slug).")],
 ) -> str:
-    """Start a deep research analysis pipeline for a prediction market bet.
+    """Start a deep research analysis for a specific prediction market.
 
-    Returns immediately with an analysis_id. Poll with research.pipe.status
-    every 5 seconds until complete, then retrieve results with research.pipe.get.
+    Returns immediately with an analysis_id, platform, and market_id.
+    Poll with research.pipe.status every 10 seconds until complete,
+    then retrieve results with research.pipe.get.
     """
-    body: dict = {"bet_text": bet_text}
-    if platform:
-        body["platform"] = platform
-    return await _request("POST", "/v1/insights", json=body)
+    return await _request("POST", f"/v1/markets/{platform}/{market_id}/analyze")
 
 
 @mcp.tool(
@@ -239,10 +366,15 @@ async def analyze_market(
     annotations={"readOnlyHint": True, "openWorldHint": True},
 )
 async def check_analysis_status(
-    analysis_id: Annotated[str, Field(description="Analysis identifier returned by research.pipe.start.")],
+    platform: Annotated[str, Field(description='Platform: "kalshi", "polymarket", or "robinhood".')],
+    market_id: Annotated[str, Field(description="Platform-specific market identifier.")],
+    analysis_id: Annotated[str, Field(description="Analysis identifier returned by research.pipe.start (rk-...).")],
 ) -> str:
     """Check the current status of a running or completed analysis."""
-    return await _request("GET", f"/v1/insights/{analysis_id}/status")
+    return await _request(
+        "GET",
+        f"/v1/markets/{platform}/{market_id}/analyze/{analysis_id}/status",
+    )
 
 
 @mcp.tool(
@@ -250,14 +382,15 @@ async def check_analysis_status(
     annotations={"readOnlyHint": True, "openWorldHint": True},
 )
 async def get_analysis(
-    analysis_id: Annotated[str, Field(description="Analysis identifier for a completed analysis.")],
+    platform: Annotated[str, Field(description='Platform: "kalshi", "polymarket", or "robinhood".')],
+    market_id: Annotated[str, Field(description="Platform-specific market identifier.")],
 ) -> str:
-    """Retrieve the full structured analysis result for a completed analysis.
+    """Retrieve the latest analysis result for a market.
 
     Includes probability estimate, edge assessment, scenarios, key factors,
     risks, and trading recommendation.
     """
-    return await _request("GET", f"/v1/insights/{analysis_id}")
+    return await _request("GET", f"/v1/markets/{platform}/{market_id}/analysis")
 
 
 @mcp.tool(
@@ -323,10 +456,9 @@ async def get_portfolio_strategy(
 async def get_calibration(
     category: Annotated[str, Field(description='Filter by category (e.g. "crypto", "politics") or "" for all.')] = "",
     period: Annotated[str, Field(description='Time period: "7d", "30d", "90d", or "all".')] = "all",
-    mode: Annotated[str, Field(description='Trading mode: "shadow" or "live".')] = "shadow",
 ) -> str:
     """Get signal accuracy and calibration metrics — Brier score, hit rates, total signals."""
-    params: dict = {"period": period, "mode": mode}
+    params: dict = {"period": period}
     if category:
         params["category"] = category
     return await _request("GET", "/v1/calibration", params=params)
@@ -337,9 +469,9 @@ async def get_calibration(
     annotations={"readOnlyHint": True, "openWorldHint": True},
 )
 async def get_consensus(
+    platform: Annotated[str, Field(description='Platform: "kalshi" or "polymarket".')],
     market_id: Annotated[str, Field(description="Platform-specific market identifier.")],
-    platform: Annotated[str, Field(description='Platform: "kalshi" or "polymarket".')] = "kalshi",
-    period: Annotated[str, Field(description='Lookback period: "48h", "7d", or "30d".')] = "7d",
+    period: Annotated[str, Field(description='Lookback period: "24h", "7d", or "30d".')] = "7d",
 ) -> str:
     """Get consensus probability from aggregated agent trades."""
     return await _request(
@@ -394,29 +526,21 @@ async def get_correlation(
 
 
 # ---------------------------------------------------------------------------
-# trade.book.*  — shadow trades, reporting, portfolio, performance
+# analytics.*  — performance tracking and reporting
 # ---------------------------------------------------------------------------
 
 
 @mcp.tool(
-    name="trade.book.shadow",
-    annotations={"readOnlyHint": False, "openWorldHint": True},
+    name="analytics.performance",
+    annotations={"readOnlyHint": True, "openWorldHint": True},
 )
-async def place_shadow_trade(
-    ticker: Annotated[str, Field(description='Market ticker symbol (e.g. "KXBTC-100K").')],
-    side: Annotated[str, Field(description='Trade direction: "yes" or "no".')],
-    size_usd: Annotated[float, Field(description="Trade size in USD.")],
-) -> str:
-    """Place a paper (shadow) trade on a prediction market for tracking purposes."""
-    return await _request(
-        "POST",
-        "/v1/trades/shadow",
-        json={"ticker": ticker, "side": side, "size_usd": size_usd},
-    )
+async def get_performance() -> str:
+    """Get aggregate trading performance statistics — win rate, ROI, total P&L."""
+    return await _request("GET", "/v1/performance")
 
 
 @mcp.tool(
-    name="trade.book.report",
+    name="analytics.report",
     annotations={"readOnlyHint": False, "openWorldHint": True},
 )
 async def report_trade(
@@ -438,39 +562,6 @@ async def report_trade(
             "price": price,
         },
     )
-
-
-@mcp.tool(
-    name="trade.book.portfolio",
-    annotations={"readOnlyHint": True, "openWorldHint": True},
-)
-async def get_portfolio(
-    mode: Annotated[str, Field(description='Portfolio mode: "shadow" for paper trades, "live" for real trades.')] = "shadow",
-) -> str:
-    """Get current portfolio positions and performance summary."""
-    return await _request("GET", "/v1/portfolio", params={"mode": mode})
-
-
-@mcp.tool(
-    name="trade.book.performance",
-    annotations={"readOnlyHint": True, "openWorldHint": True},
-)
-async def get_performance(
-    mode: Annotated[str, Field(description='Portfolio mode: "shadow" for paper trades, "live" for real trades.')] = "shadow",
-) -> str:
-    """Get aggregate trading performance statistics."""
-    return await _request("GET", "/v1/performance", params={"mode": mode})
-
-
-@mcp.tool(
-    name="trade.book.resolve",
-    annotations={"readOnlyHint": False, "openWorldHint": True},
-)
-async def check_resolutions(
-    mode: Annotated[str, Field(description='Portfolio mode: "shadow" for paper trades, "live" for real trades.')] = "shadow",
-) -> str:
-    """Check all open trades for market resolution and update P&L."""
-    return await _request("POST", "/v1/trades/resolve", params={"mode": mode})
 
 
 # ---------------------------------------------------------------------------
@@ -514,3 +605,82 @@ async def delete_webhook(
 ) -> str:
     """Remove a registered webhook."""
     return await _request("DELETE", f"/v1/webhooks/{webhook_id}")
+
+
+# ---------------------------------------------------------------------------
+# help.*  — developer onboarding
+# ---------------------------------------------------------------------------
+
+
+@mcp.tool(
+    name="help.quickstart",
+    annotations={"readOnlyHint": True, "openWorldHint": False},
+)
+async def quickstart(
+    language: Annotated[str, Field(description='Code example language: "python", "curl", or "mcp_config".')] = "python",
+) -> str:
+    """Get a quickstart code snippet to make your first Rekko API call.
+
+    Returns a working code example for the specified language that lists
+    prediction markets and runs a basic analysis.
+    """
+    snippets = {
+        "python": (
+            "# pip install httpx\n"
+            "import httpx\n\n"
+            "API_KEY = 'your_api_key'  # Get one free at https://rekko.ai/dashboard\n"
+            "BASE = 'https://api.rekko.ai/v1'\n"
+            "headers = {'Authorization': f'Bearer {API_KEY}'}\n\n"
+            "# List top prediction markets\n"
+            "markets = httpx.get(f'{BASE}/markets', headers=headers).json()\n"
+            "for m in markets[:5]:\n"
+            "    print(f\"{m['title']} — {m['yes_price']:.0%} YES ({m['platform']})\")\n\n"
+            "# Get details on a specific market\n"
+            "market = markets[0]\n"
+            "detail = httpx.get(\n"
+            "    f\"{BASE}/markets/{market['platform']}/{market['market_id']}\",\n"
+            "    headers=headers,\n"
+            ").json()\n"
+            "print(f\"Current price: {detail['yes_price']:.0%}\")\n"
+        ),
+        "curl": (
+            "# List top prediction markets\n"
+            "curl -H 'Authorization: Bearer YOUR_API_KEY' \\\n"
+            "  https://api.rekko.ai/v1/markets\n\n"
+            "# Get a specific market\n"
+            "curl -H 'Authorization: Bearer YOUR_API_KEY' \\\n"
+            "  https://api.rekko.ai/v1/markets/kalshi/KXBTC-100K\n\n"
+            "# Trigger AI analysis\n"
+            "curl -X POST -H 'Authorization: Bearer YOUR_API_KEY' \\\n"
+            "  https://api.rekko.ai/v1/markets/kalshi/KXBTC-100K/analyze\n"
+        ),
+        "mcp_config": (
+            "# Add to your Claude Code MCP config (~/.claude.json or .mcp.json):\n"
+            "{\n"
+            '  "mcpServers": {\n'
+            '    "rekko": {\n'
+            '      "command": "uvx",\n'
+            '      "args": ["rekko-mcp"],\n'
+            '      "env": {\n'
+            '        "REKKO_API_KEY": "your_api_key"\n'
+            "      }\n"
+            "    }\n"
+            "  }\n"
+            "}\n\n"
+            "# Then ask Claude: 'List prediction markets' or 'Analyze KXBTC-100K on Kalshi'\n"
+            "# Get a free API key at https://rekko.ai/dashboard\n"
+        ),
+    }
+    lang = language.lower().replace(" ", "_")
+    if lang not in snippets:
+        return json.dumps({
+            "error": f"Unknown language '{language}'. Choose: python, curl, mcp_config",
+            "available": list(snippets.keys()),
+        })
+    return json.dumps({
+        "language": lang,
+        "snippet": snippets[lang],
+        "signup_url": "https://rekko.ai/dashboard",
+        "docs_url": "https://rekko.ai/docs",
+        "platforms": ["kalshi", "polymarket", "robinhood"],
+    })

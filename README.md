@@ -1,6 +1,7 @@
 # rekko-mcp
 
 [![rekko-mcp MCP server](https://glama.ai/mcp/servers/Rekko-AI/rekko-mcp/badges/card.svg)](https://glama.ai/mcp/servers/Rekko-AI/rekko-mcp)
+[![MCP Badge](https://lobehub.com/badge/mcp/rekko-ai-rekko-mcp)](https://lobehub.com/mcp/rekko-ai-rekko-mcp)
 
 Prediction market intelligence for AI coding assistants. 24 MCP tools for market data, deep analysis, trading signals, arbitrage detection, and screening across **Kalshi**, **Polymarket**, and **Robinhood**.
 
