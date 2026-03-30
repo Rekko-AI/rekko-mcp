@@ -12,7 +12,7 @@ uvx rekko-mcp
 pip install rekko-mcp
 ```
 
-Requires Python 3.11+ and a [Rekko API key](https://rekko.ai/dashboard) (free tier available).
+Requires Python 3.11+ and a [Rekko API key](https://rekko.ai/dashboard?utm_source=github&utm_medium=readme&utm_campaign=rekko-mcp) (free tier available).
 
 ## Configure
 
@@ -61,13 +61,13 @@ Or add to `.mcp.json`:
 
 ## Tutorials
 
-- [Prediction Market API Comparison](https://rekko.ai/docs/guides/prediction-market-api-comparison) — Kalshi vs Polymarket vs Robinhood APIs compared
-- [Build a Trading Bot with Python](https://rekko.ai/docs/guides/build-trading-bot-python) — End-to-end bot with screening, analysis, and signals
-- [Kalshi API Guide](https://rekko.ai/docs/guides/kalshi-api-guide) — RSA-PSS auth, endpoints, and adding AI analysis
-- [Polymarket API Guide](https://rekko.ai/docs/guides/polymarket-api-guide) — CLOB, py-clob-client, and AI-powered analysis
-- [MCP Trading Workflow](https://rekko.ai/docs/guides/mcp-trading-workflow) — Natural language market research from your IDE
-- [Cross-Platform Arbitrage](https://rekko.ai/docs/guides/prediction-market-arbitrage) — Find price gaps between platforms
-- [Kelly Criterion Sizing](https://rekko.ai/docs/guides/kelly-criterion-position-sizing) — Optimal position sizing
+- [Prediction Market API Comparison](https://rekko.ai/docs/guides/prediction-market-api-comparison?utm_source=github&utm_medium=readme&utm_campaign=rekko-mcp) — Kalshi vs Polymarket vs Robinhood APIs compared
+- [Build a Trading Bot with Python](https://rekko.ai/docs/guides/build-trading-bot-python?utm_source=github&utm_medium=readme&utm_campaign=rekko-mcp) — End-to-end bot with screening, analysis, and signals
+- [Kalshi API Guide](https://rekko.ai/docs/guides/kalshi-api-guide?utm_source=github&utm_medium=readme&utm_campaign=rekko-mcp) — RSA-PSS auth, endpoints, and adding AI analysis
+- [Polymarket API Guide](https://rekko.ai/docs/guides/polymarket-api-guide?utm_source=github&utm_medium=readme&utm_campaign=rekko-mcp) — CLOB, py-clob-client, and AI-powered analysis
+- [MCP Trading Workflow](https://rekko.ai/docs/guides/mcp-trading-workflow?utm_source=github&utm_medium=readme&utm_campaign=rekko-mcp) — Natural language market research from your IDE
+- [Cross-Platform Arbitrage](https://rekko.ai/docs/guides/prediction-market-arbitrage?utm_source=github&utm_medium=readme&utm_campaign=rekko-mcp) — Find price gaps between platforms
+- [Kelly Criterion Sizing](https://rekko.ai/docs/guides/kelly-criterion-position-sizing?utm_source=github&utm_medium=readme&utm_campaign=rekko-mcp) — Optimal position sizing
 
 ## Pricing
 
@@ -79,12 +79,12 @@ Or add to `.mcp.json`:
 | Strategy | $2.00 | Signals, portfolio sizing, consensus |
 | Deep | $5.00 | Arbitrage, correlation, webhooks |
 
-Free plan: 100 listing + 10 insight calls/month. [Upgrade to Pro](https://rekko.ai/dashboard) for higher limits.
+Free plan: 100 listing + 10 insight calls/month. [Upgrade to Pro](https://rekko.ai/dashboard?utm_source=github&utm_medium=readme&utm_campaign=rekko-mcp&utm_content=pricing) for higher limits.
 
 ## Links
 
-- [rekko.ai](https://rekko.ai) — Home
-- [Documentation](https://rekko.ai/docs) — Full API reference and tutorials
+- [rekko.ai](https://rekko.ai?utm_source=github&utm_medium=readme&utm_campaign=rekko-mcp) — Home
+- [Documentation](https://rekko.ai/docs?utm_source=github&utm_medium=readme&utm_campaign=rekko-mcp) — Full API reference and tutorials
 - [Status](https://status.rekko.ai) — API uptime and incident history
 - [OpenAPI Spec](https://api.rekko.ai/openapi.json) — Machine-readable API schema
 - [RapidAPI](https://rapidapi.com/rekko-ai-rekko-ai-default/api/rekko-ai-prediction-market-intelligence) — Marketplace listing
