@@ -425,7 +425,7 @@ async def get_strategy(
     body: dict = {"market_query": market_query}
     if risk_limit > 0:
         body["risk_limit"] = risk_limit
-    return await _request("POST", "/v1/signals", json=body)
+    return await _request("POST", "/v1/signals", params={"wait": "true"}, json=body)
 
 
 @mcp.tool(
@@ -446,7 +446,7 @@ async def get_portfolio_strategy(
     }
     if portfolio:
         body["portfolio"] = portfolio
-    return await _request("POST", "/v1/signals/portfolio", json=body)
+    return await _request("POST", "/v1/signals/portfolio", params={"wait": "true"}, json=body)
 
 
 @mcp.tool(
