@@ -23,7 +23,7 @@ mcp = FastMCP(
     "rekko",
     instructions=(
         "Rekko AI provides prediction market intelligence for Kalshi, "
-        "Polymarket, and Robinhood — deep causal research, arbitrage detection, "
+        "Polymarket, Robinhood, and Coinbase — deep causal research, arbitrage detection, "
         "screening, and strategy signals. Use these tools to browse markets, "
         "trigger analysis pipelines, scan for arbitrage, and get actionable "
         "trading signals."
@@ -186,6 +186,15 @@ def platforms_resource() -> str:
                 "url": "https://robinhood.com/prediction-markets",
                 "note": "Data only — no public trading API",
             },
+            {
+                "name": "Coinbase",
+                "id": "coinbase",
+                "type": "regulated",
+                "regulator": "CFTC",
+                "data": True,
+                "url": "https://www.coinbase.com/prediction-markets",
+                "note": "Powered by Kalshi — same order book",
+            },
         ],
         "arbitrage": {
             "supported_pairs": ["kalshi-polymarket", "kalshi-robinhood"],
@@ -251,7 +260,7 @@ async def list_markets(
     annotations={"readOnlyHint": True, "openWorldHint": True},
 )
 async def get_market(
-    platform: Annotated[str, Field(description='Platform: "kalshi", "polymarket", or "robinhood".')],
+    platform: Annotated[str, Field(description='Platform: "kalshi", "polymarket", "robinhood", or "coinbase".')],
     market_id: Annotated[str, Field(description="Platform-specific market identifier (e.g. Kalshi ticker or Polymarket slug).")],
 ) -> str:
     """Get detailed information about a specific prediction market."""
@@ -275,7 +284,7 @@ async def search_markets(
     annotations={"readOnlyHint": True, "openWorldHint": True},
 )
 async def get_market_history(
-    platform: Annotated[str, Field(description='Platform: "kalshi", "polymarket", or "robinhood".')],
+    platform: Annotated[str, Field(description='Platform: "kalshi", "polymarket", "robinhood", or "coinbase".')],
     market_id: Annotated[str, Field(description="Platform-specific market identifier.")],
     period: Annotated[str, Field(description='History window: "48h", "7d", or "30d".')] = "7d",
     max_points: Annotated[int, Field(description="Maximum data points to return.")] = 48,
@@ -293,7 +302,7 @@ async def get_market_history(
     annotations={"readOnlyHint": True, "openWorldHint": True},
 )
 async def get_resolution(
-    platform: Annotated[str, Field(description='Platform: "kalshi", "polymarket", or "robinhood".')],
+    platform: Annotated[str, Field(description='Platform: "kalshi", "polymarket", "robinhood", or "coinbase".')],
     market_id: Annotated[str, Field(description="Platform-specific market identifier.")],
 ) -> str:
     """Get resolution intelligence for a market — time urgency, mechanism, theta estimate."""
@@ -305,7 +314,7 @@ async def get_resolution(
     annotations={"readOnlyHint": True, "openWorldHint": True},
 )
 async def get_execution_guidance(
-    platform: Annotated[str, Field(description='Platform: "kalshi", "polymarket", or "robinhood".')],
+    platform: Annotated[str, Field(description='Platform: "kalshi", "polymarket", "robinhood", or "coinbase".')],
     market_id: Annotated[str, Field(description="Platform-specific market identifier.")],
 ) -> str:
     """Get execution guidance for a market — spread analysis, slippage estimate, order recommendation."""
@@ -349,7 +358,7 @@ async def screen_markets(
     annotations={"readOnlyHint": False, "openWorldHint": True},
 )
 async def analyze_market(
-    platform: Annotated[str, Field(description='Platform: "kalshi", "polymarket", or "robinhood".')],
+    platform: Annotated[str, Field(description='Platform: "kalshi", "polymarket", "robinhood", or "coinbase".')],
     market_id: Annotated[str, Field(description="Platform-specific market identifier (e.g. Kalshi ticker or Polymarket slug).")],
 ) -> str:
     """Start a deep research analysis for a specific prediction market.
@@ -366,7 +375,7 @@ async def analyze_market(
     annotations={"readOnlyHint": True, "openWorldHint": True},
 )
 async def check_analysis_status(
-    platform: Annotated[str, Field(description='Platform: "kalshi", "polymarket", or "robinhood".')],
+    platform: Annotated[str, Field(description='Platform: "kalshi", "polymarket", "robinhood", or "coinbase".')],
     market_id: Annotated[str, Field(description="Platform-specific market identifier.")],
     analysis_id: Annotated[str, Field(description="Analysis identifier returned by research.pipe.start (rk-...).")],
 ) -> str:
@@ -382,7 +391,7 @@ async def check_analysis_status(
     annotations={"readOnlyHint": True, "openWorldHint": True},
 )
 async def get_analysis(
-    platform: Annotated[str, Field(description='Platform: "kalshi", "polymarket", or "robinhood".')],
+    platform: Annotated[str, Field(description='Platform: "kalshi", "polymarket", "robinhood", or "coinbase".')],
     market_id: Annotated[str, Field(description="Platform-specific market identifier.")],
 ) -> str:
     """Retrieve the latest analysis result for a market.
@@ -682,5 +691,5 @@ async def quickstart(
         "snippet": snippets[lang],
         "signup_url": "https://rekko.ai/dashboard",
         "docs_url": "https://rekko.ai/docs",
-        "platforms": ["kalshi", "polymarket", "robinhood"],
+        "platforms": ["kalshi", "polymarket", "robinhood", "coinbase"],
     })

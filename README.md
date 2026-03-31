@@ -3,7 +3,7 @@
 [![rekko-mcp MCP server](https://glama.ai/mcp/servers/Rekko-AI/rekko-mcp/badges/card.svg)](https://glama.ai/mcp/servers/Rekko-AI/rekko-mcp)
 [![MCP Badge](https://lobehub.com/badge/mcp/rekko-ai-rekko-mcp)](https://lobehub.com/mcp/rekko-ai-rekko-mcp)
 
-Prediction market intelligence for AI coding assistants. 24 MCP tools for market data, deep analysis, trading signals, arbitrage detection, and screening across **Kalshi**, **Polymarket**, and **Robinhood**.
+Prediction market intelligence for AI coding assistants. 24 MCP tools for market data, deep analysis, trading signals, arbitrage detection, and screening across **Kalshi**, **Polymarket**, **Robinhood**, and **Coinbase**.
 
 ## Install
 
@@ -41,7 +41,7 @@ Or add to `.mcp.json`:
 
 ## What You Get
 
-- **Market data** — browse, search, and get price history across Kalshi, Polymarket, and Robinhood
+- **Market data** — browse, search, and get price history across Kalshi, Polymarket, Robinhood, and Coinbase
 - **Deep analysis** — multi-stage AI research pipeline with probability estimates and causal decomposition (30-90s)
 - **Trading signals** — edge assessment, confidence scoring, Kelly criterion position sizing
 - **Arbitrage** — cross-platform spread detection between Kalshi and Polymarket
@@ -62,7 +62,7 @@ Or add to `.mcp.json`:
 
 ## Tutorials
 
-- [Prediction Market API Comparison](https://rekko.ai/docs/guides/prediction-market-api-comparison?utm_source=github&utm_medium=readme&utm_campaign=rekko-mcp) — Kalshi vs Polymarket vs Robinhood APIs compared
+- [Prediction Market API Comparison](https://rekko.ai/docs/guides/prediction-market-api-comparison?utm_source=github&utm_medium=readme&utm_campaign=rekko-mcp) — Kalshi vs Polymarket vs Robinhood vs Coinbase APIs compared
 - [Build a Trading Bot with Python](https://rekko.ai/docs/guides/build-trading-bot-python?utm_source=github&utm_medium=readme&utm_campaign=rekko-mcp) — End-to-end bot with screening, analysis, and signals
 - [Kalshi API Guide](https://rekko.ai/docs/guides/kalshi-api-guide?utm_source=github&utm_medium=readme&utm_campaign=rekko-mcp) — RSA-PSS auth, endpoints, and adding AI analysis
 - [Polymarket API Guide](https://rekko.ai/docs/guides/polymarket-api-guide?utm_source=github&utm_medium=readme&utm_campaign=rekko-mcp) — CLOB, py-clob-client, and AI-powered analysis
