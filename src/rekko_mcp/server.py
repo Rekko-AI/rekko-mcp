@@ -349,6 +349,101 @@ async def screen_markets(
 
 
 # ---------------------------------------------------------------------------
+# market.events.*  — browse and search prediction market events
+# ---------------------------------------------------------------------------
+
+
+@mcp.tool(
+    name="market.events.list",
+    annotations={"readOnlyHint": True, "openWorldHint": True},
+)
+async def list_events(
+    source: Annotated[str, Field(description='Filter by platform: "kalshi", "polymarket", or "" for all.')] = "",
+    category: Annotated[str, Field(description='Filter by category (e.g. "politics", "crypto") or "" for all.')] = "",
+    featured: Annotated[bool | None, Field(description="Only featured events (true) or all (null/omit).")] = None,
+    limit: Annotated[int, Field(description="Maximum number of events to return (1-100).")] = 20,
+) -> str:
+    """List prediction market events with aggregate stats.
+
+    Events group related individual markets (e.g., "Who will leave the Trump
+    administration?" groups 32 individual outcome markets). Sorted by
+    aggregate 24h volume descending.
+    """
+    params: dict = {"limit": limit}
+    if source:
+        params["source"] = source
+    if category:
+        params["category"] = category
+    if featured is not None:
+        params["featured"] = featured
+    return await _request("GET", "/v1/events", params=params)
+
+
+@mcp.tool(
+    name="market.events.trending",
+    annotations={"readOnlyHint": True, "openWorldHint": True},
+)
+async def trending_events(
+    limit: Annotated[int, Field(description="Maximum number of trending events to return (1-50).")] = 20,
+) -> str:
+    """Get top trending prediction market events.
+
+    Combines featured status, volume, and recency. Designed for AI agents
+    that want a quick overview of what's hot in prediction markets.
+    """
+    return await _request("GET", "/v1/events/trending", params={"limit": limit})
+
+
+@mcp.tool(
+    name="market.events.search",
+    annotations={"readOnlyHint": True, "openWorldHint": True},
+)
+async def search_events(
+    q: Annotated[str, Field(description="Search query — supports keyword and semantic matching.")],
+    limit: Annotated[int, Field(description="Maximum number of results to return (1-50).")] = 20,
+) -> str:
+    """Search prediction market events using hybrid full-text + semantic search.
+
+    Finds events matching by keyword ("Iran") and by meaning ("US military
+    Middle East" matches "US forces enter Iran"). Uses Reciprocal Rank
+    Fusion to combine both signals.
+    """
+    return await _request("GET", "/v1/events/search", params={"q": q, "limit": limit})
+
+
+@mcp.tool(
+    name="market.events.get",
+    annotations={"readOnlyHint": True, "openWorldHint": True},
+)
+async def get_event(
+    slug: Annotated[str, Field(description="Event slug (e.g. 'kalshi:kxtrumpadminleave-26dec31').")],
+    expand: Annotated[str, Field(description='Comma-separated expansions: "markets" to include individual outcome markets.')] = "",
+) -> str:
+    """Get detailed information about a single prediction market event.
+
+    Use expand="markets" to include all individual outcome markets in the response.
+    """
+    params: dict = {}
+    if expand:
+        params["expand"] = expand
+    return await _request("GET", f"/v1/events/{slug}", params=params)
+
+
+@mcp.tool(
+    name="market.events.markets",
+    annotations={"readOnlyHint": True, "openWorldHint": True},
+)
+async def get_event_markets(
+    slug: Annotated[str, Field(description="Event slug (e.g. 'kalshi:kxtrumpadminleave-26dec31').")],
+) -> str:
+    """List all individual outcome markets within a prediction market event.
+
+    Returns markets sorted by 24h volume descending.
+    """
+    return await _request("GET", f"/v1/events/{slug}/markets")
+
+
+# ---------------------------------------------------------------------------
 # research.pipe.*  — deep research analysis pipelines
 # ---------------------------------------------------------------------------
 

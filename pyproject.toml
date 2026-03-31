@@ -1,6 +1,6 @@
 [project]
 name = "rekko-mcp"
-version = "0.7.2"
+version = "0.8.0"
 description = "Prediction market intelligence MCP server — Kalshi, Polymarket, Robinhood, Coinbase"
 readme = "README.md"
 license = "MIT"
