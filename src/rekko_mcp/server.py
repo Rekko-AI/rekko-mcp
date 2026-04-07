@@ -221,10 +221,10 @@ def pricing_resource() -> str:
             "upgrade": "https://rekko.ai/dashboard",
         },
         "tiers": {
-            "listing": {"per_call": "$0.01", "endpoints": ["markets", "history", "search"]},
-            "insight": {"per_call": "$0.10", "endpoints": ["analysis", "screening", "resolution"]},
-            "strategy": {"per_call": "$2.00", "endpoints": ["signals", "execution", "consensus"]},
-            "deep": {"per_call": "$5.00", "endpoints": ["arbitrage", "correlation", "webhooks"]},
+            "listing": {"per_call": "$0.01", "endpoints": ["markets", "history", "search", "events", "events/trending", "events/search"]},
+            "insight": {"per_call": "$0.10", "endpoints": ["analysis", "screening", "resolution", "events/analyze", "events/analysis", "events/probability-map"]},
+            "strategy": {"per_call": "$2.00", "endpoints": ["signals", "execution", "consensus", "what-if"]},
+            "deep": {"per_call": "$5.00", "endpoints": ["arbitrage", "correlation", "events/correlation", "webhooks"]},
         },
         "x402": {
             "enabled": True,
@@ -443,6 +443,66 @@ async def get_event_markets(
     return await _request("GET", f"/v1/events/{slug}/markets")
 
 
+@mcp.tool(
+    name="market.events.analyze",
+    annotations={"readOnlyHint": False, "openWorldHint": True},
+)
+async def analyze_event(
+    slug: Annotated[str, Field(description="Event slug (e.g. 'kalshi:kxtrumpadminleave-26dec31').")],
+) -> str:
+    """Trigger an AI analysis of an entire prediction market event (all sub-markets).
+
+    Returns an analysis_id. The analysis covers the event holistically —
+    ranking sub-markets, identifying surprises, and producing a probability map.
+    """
+    return await _request("POST", f"/v1/events/{slug}/analyze")
+
+
+@mcp.tool(
+    name="market.events.analysis",
+    annotations={"readOnlyHint": True, "openWorldHint": True},
+)
+async def get_event_analysis(
+    slug: Annotated[str, Field(description="Event slug (e.g. 'kalshi:kxtrumpadminleave-26dec31').")],
+    expand: Annotated[str, Field(description='Comma-separated expansions (e.g. "scenarios,causal").')] = "",
+) -> str:
+    """Get the latest AI analysis for a prediction market event."""
+    params: dict = {}
+    if expand:
+        params["expand"] = expand
+    return await _request("GET", f"/v1/events/{slug}/analysis", params=params)
+
+
+@mcp.tool(
+    name="market.events.probability_map",
+    annotations={"readOnlyHint": True, "openWorldHint": True},
+)
+async def get_event_probability_map(
+    slug: Annotated[str, Field(description="Event slug (e.g. 'kalshi:kxtrumpadminleave-26dec31').")],
+) -> str:
+    """Get probability estimates for all sub-markets within an event.
+
+    Returns a map of market_id to probability with confidence intervals,
+    useful for comparing outcomes within a single event.
+    """
+    return await _request("GET", f"/v1/events/{slug}/probability-map")
+
+
+@mcp.tool(
+    name="market.events.correlation",
+    annotations={"readOnlyHint": True, "openWorldHint": True},
+)
+async def get_event_correlation(
+    slug: Annotated[str, Field(description="Event slug (e.g. 'kalshi:kxtrumpadminleave-26dec31').")],
+) -> str:
+    """Get cross-market correlation analysis within a prediction market event.
+
+    Identifies which sub-markets move together, concentration risks,
+    and hedge opportunities.
+    """
+    return await _request("GET", f"/v1/events/{slug}/correlation")
+
+
 # ---------------------------------------------------------------------------
 # research.pipe.*  — deep research analysis pipelines
 # ---------------------------------------------------------------------------
@@ -583,6 +643,26 @@ async def get_consensus(
         f"/v1/markets/{platform}/{market_id}/consensus",
         params={"period": period},
     )
+
+
+@mcp.tool(
+    name="research.signal.what_if",
+    annotations={"readOnlyHint": True, "openWorldHint": True},
+)
+async def what_if(
+    market_query: Annotated[str, Field(description="Market question, ticker, or URL.")],
+    hypothesis: Annotated[str, Field(description='Hypothetical scenario to evaluate (e.g. "Fed cuts rates by 50bps").')],
+    platform: Annotated[str, Field(description='Platform hint: "kalshi" or "polymarket".')] = "",
+) -> str:
+    """Analyze how a hypothetical scenario would affect a market's probability.
+
+    Returns base probability, scenario probability, delta, and reasoning.
+    Use to gauge market sensitivity to specific events.
+    """
+    body: dict = {"market_query": market_query, "hypothesis": hypothesis}
+    if platform:
+        body["platform"] = platform
+    return await _request("POST", "/v1/what-if", json=body)
 
 
 # ---------------------------------------------------------------------------
